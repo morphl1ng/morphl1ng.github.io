@@ -76,7 +76,7 @@ giscus:
   repo: morphl1ng/morphl1ng.github.io
   repo_id: R_kgDOTg1WsQ
   category: General
-  category_id: '' # 待填：开启 Discussions 后到 https://giscus.app/zh-CN 生成
+  category_id: DIC_kwDOTg1Wsc4DByV9
   theme:
     light: light
     dark: dark
