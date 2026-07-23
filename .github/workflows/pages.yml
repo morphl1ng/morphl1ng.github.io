@@ -28,6 +28,8 @@ jobs:
       - run: npm ci
 
       - run: npx hexo generate
+        env:
+          TZ: Asia/Shanghai
 
       - uses: actions/upload-pages-artifact@v3
         with:

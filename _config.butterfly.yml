@@ -43,6 +43,11 @@ aside:
   card_author:
     enable: true
     description: 记录与思考
+    button:
+      enable: true
+      icon: fab fa-github
+      text: Follow Me
+      link: https://github.com/morphl1ng
   card_announcement:
     enable: true
     content: 欢迎来到我的博客 🎉
