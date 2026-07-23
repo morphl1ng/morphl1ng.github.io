@@ -54,8 +54,35 @@ aside:
     enable: true
     content: 欢迎来到我的博客 🎉
 
-# 不蒜子访问统计（轻量、免注册）
+# 不蒜子访问统计——其数据 API 已超时无响应（2026-07 实测），关闭避免加载动画卡死
 busuanzi:
-  site_uv: true
-  site_pv: true
-  page_pv: true
+  site_uv: false
+  site_pv: false
+  page_pv: false
+
+# 本地搜索（需要 hexo-generator-searchdb，已安装；菜单栏会出现放大镜）
+local_search:
+  enable: true
+  preload: false
+
+# 评论系统 giscus（基于 GitHub Discussions）
+comments:
+  use: giscus
+  text: true
+  count: false
+  lazyload: true
+
+giscus:
+  repo: morphl1ng/morphl1ng.github.io
+  repo_id: R_kgDOTg1WsQ
+  category: General
+  category_id: '' # 待填：开启 Discussions 后到 https://giscus.app/zh-CN 生成
+  theme:
+    light: light
+    dark: dark
+
+# 注入自定义资源
+inject:
+  head:
+  bottom:
+    - <script defer src="/js/snow.js"></script>

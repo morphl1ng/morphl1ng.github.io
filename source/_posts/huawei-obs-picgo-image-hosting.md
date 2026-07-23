@@ -9,45 +9,44 @@ categories:
   - 技术笔记
 ---
 
-写博客最烦的事之一就是插图：图片放仓库里会越堆越大，拖慢克隆和构建；用免费图床又担心跑路、挂链。自己搭一个图床是一劳永逸的方案。这篇记录我用 **华为云 OBS（对象存储）+ PicGo** 搭建图床的完整过程，全流程 15 分钟，每月成本几块钱。
-
-## 原理
-
-```
-截图/图片 → PicGo 一键上传 → 华为云 OBS 桶（公共读）→ 返回图片 URL → 粘贴进 Markdown
-```
-
-PicGo 负责上传和生成 Markdown 链接，OBS 负责存储和对外提供访问，配合起来就是完整的图床。
+记录图床构建
 
 ## 一、华为云 OBS 配置
 
 ### 1. 创建桶
 
-1. 登录 [华为云控制台](https://console.huaweicloud.com/)，完成实名认证后进入 **对象存储服务 OBS**
+1. 登录 [对象存储服务OBS_官网_云存储服务_数据云存储解决方案-华为云](https://www.huaweicloud.com/product/obs.html)，完成实名认证后进入 **对象存储服务 OBS**
+
+   ![image-20260723142015405](https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/image-20260723142015405.png)
+
+   ![image-20260723142104566](https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/image-20260723142104566.png)
+
 2. 点击 **创建桶**，关键选项：
-   - **区域**：就近选，例如 `华北-北京四`
+   - **区域**：就近选，例如 `华东-上海一`
+
    - **存储类别**：标准存储
-   - **桶名称**：全局唯一，例如 `myblog-img-你的id`
-   - 其他保持默认
+
+   - **桶名称**：全局唯一，例如 `myblog-你的id`
+
+   - **开启公共读**
+
+     ![image-20260723142444349](https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/image-20260723142444349.png)
 
 ### 2. 开启公共读（关键！）
 
 图床图片必须让所有人能通过链接访问，否则外链全部 403：
 
-进入桶 → **权限控制** → **桶策略** → 设置为 **公共读**（匿名用户可读取桶内对象）。
+进入桶 → **权限控制** → **桶策略** → 创建桶策略设置为 **公共读**（匿名用户可读取桶内对象）。
 
-### 3. 获取访问密钥 AK/SK
+![image-20260723142706307](https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/image-20260723142706307.png)
+
+### 3. 获取访问密钥 AK/SK、查看Endpoint
 
 右上角账号名 → **我的凭证** → **访问密钥** → **新增访问密钥**，保存好下载的 `credentials.csv`。
 
 > ⚠️ 安全建议：AK/SK 等于账号密码，**永远不要提交进 git 仓库**。更稳妥的做法是在 IAM 里创建一个子用户，只授予 OBS 的读写权限，用子用户的密钥。
 
-### 4. 记住两个地址
-
-| 用途 | 格式 | 示例（华北-北京四） |
-|---|---|---|
-| Endpoint | `obs.{区域}.myhuaweicloud.com` | `obs.cn-north-4.myhuaweicloud.com` |
-| 图片外链前缀 | `https://{桶名}.obs.{区域}.myhuaweicloud.com` | `https://myblog-img.obs.cn-north-4.myhuaweicloud.com` |
+在概览中查看Endpoint，示例（华东-上海一）obs.cn-east-3.myhuaweicloud.com
 
 ## 二、PicGo 配置
 
@@ -57,50 +56,17 @@ PicGo 负责上传和生成 Markdown 链接，OBS 负责存储和对外提供访
 
 ### 2. 安装华为云上传插件
 
-PicGo 本体不带华为云支持，进入 **插件设置**，有两种可选方案：
+PicGo 本体不带华为云支持，进入 **插件设置**，搜索 `huawei`，安装华为云 OBS 专用插件。
 
-- **方案 A**：搜索 `huawei`，安装华为云 OBS 专用插件，图形化填写配置即可（配置项以插件页说明为准）
-- **方案 B**：华为云 OBS 兼容 Amazon S3 协议，搜索 `s3` 安装 S3 插件，把 endpoint 指向 OBS 地址
+![image-20260723143037314](https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/image-20260723143037314.png)
 
-以 S3 插件为例，典型配置：
+### 3. 配置华为云OBS
 
-| 配置项 | 填写内容 |
-|---|---|
-| AccessKey ID | 你的 AK |
-| SecretAccessKey | 你的 SK |
-| 桶名 | `myblog-img` |
-| 文件路径 | `img/{year}/{month}/{fullName}` |
-| Endpoint | `https://obs.cn-north-4.myhuaweicloud.com` |
-| 自定义域名 | `https://myblog-img.obs.cn-north-4.myhuaweicloud.com` |
+![image-20260723143148886](https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/image-20260723143148886.png)
 
-### 3. 顺手设置
+## 三、Typora 配置
 
-- **PicGo 设置 → 自定义链接格式**：选 `Markdown`，上传完成自动复制 `![](url)` 到剪贴板
-- **上传快捷键**：默认 `Ctrl + Shift + P`（上传剪贴板图片），可在设置里改
+修改好后右键点击上传图像，链接会自动切换。
 
-## 三、验证与日常使用
+![image-20260723143358067](https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/image-20260723143358067.png)
 
-1. 随便截个图（`Win + Shift + S`）
-2. 按 `Ctrl + Shift + P`，提示上传成功
-3. 直接 `Ctrl + V` 粘贴到文章里，就是一条 OBS 的图片链接
-
-之后在 Hexo 里写文章，插图就是纯肌肉记忆：截图 → 快捷键 → 粘贴，图片文件完全不进 git 仓库，仓库保持轻量。
-
-## 四、费用与防坑
-
-**费用构成**（以华为云官网定价为准，以下只是量级参考）：
-
-- 标准存储：约 0.1 元/GB/月
-- 公网下行流量：约 0.5 元/GB
-
-个人博客图库一般就几百 MB、月流量几个 GB，**每月成本通常在 5 元以内**。新用户常有免费试用资源包，可以留意官网活动。
-
-**防坑提醒**：
-
-1. **防盗刷**：桶是公共读的，如果图片链接被盗链刷流量会产生费用。可以在桶里配置 **防盗链（Referer 白名单）**，只允许你自己的博客域名引用
-2. **AK/SK 保密**：泄露 = 别人随便写你的桶，发现泄露立刻去"我的凭证"里禁用并换新
-3. **备份**：重要图片本地留一份，云存储不是备份的替代品
-
----
-
-搞定图床后，下一步可以给博客文章配封面图了——Butterfly 主题的文章 Front-matter 里加一行 `cover: 图片链接` 即可，正好用新图床来存。

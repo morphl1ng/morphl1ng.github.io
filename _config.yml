@@ -98,6 +98,12 @@ ignore:
 ## Themes: https://hexo.io/themes/
 theme: butterfly
 
+# 本地搜索索引（hexo-generator-searchdb）
+search:
+  path: search.xml
+  field: post
+  content: true
+
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 ## 部署由 GitHub Actions 自动完成（见 .github/workflows/pages.yml），push 源码即上线
