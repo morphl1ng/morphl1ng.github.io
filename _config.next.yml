@@ -1,0 +1,59 @@
+# NexT 主题配置（覆盖主题默认值，升级主题不受影响）
+# 文档: https://theme-next.js.org/docs/theme-settings/
+
+# 四种风格: Muse | Mist | Pisces | Gemini
+scheme: Gemini
+
+# 深色模式（跟随系统）
+darkmode: true
+
+# 菜单
+menu:
+  home: / || fa fa-home
+  archives: /archives/ || fa fa-archive
+  categories: /categories/ || fa fa-th
+  tags: /tags/ || fa fa-tags
+  about: /about/ || fa fa-user
+
+# 侧边栏社交链接
+social:
+  GitHub: https://github.com/morphl1ng || fab fa-github
+
+# 头像（把头像图片放到 source/images/avatar.jpg 后取消注释）
+# avatar:
+#   url: /images/avatar.jpg
+#   rounded: true
+
+# 文章信息
+symbols_count_time:
+  separated_meta: true
+  item_text_total: false
+
+# 返回顶部
+back2top:
+  enable: true
+  sidebar: true
+  scrollpercent: true
+
+# 文章底部版权信息
+creative_commons:
+  license: by-nc-sa
+  sidebar: true
+  post: true
+
+# 页脚
+footer:
+  since: 2026
+  icon:
+    animated: true
+  powered: true
+
+# 代码块
+codeblock:
+  copy_button:
+    enable: true
+    show_result: true
+
+# 搜索（需要 hexo-generator-searchdb 插件，后续可加）
+local_search:
+  enable: false
