@@ -15,9 +15,8 @@ menu:
 social:
   fab fa-github: https://github.com/morphl1ng || GitHub
 
-# 全局背景（默认渐变色；换成二次元背景图时填图片 URL，如:
-# background: url(https://你的图床/xxx.jpg)
-background:
+# 全局背景：雪夜图（SVG 矢量，source/img/snow-night.svg）
+background: url(/img/snow-night.svg)
 
 # 首页顶部大图高度（必须是带单位的字符串，如 '70%'、'100vh'）
 index_top_img_height: '70%'
@@ -91,5 +90,7 @@ giscus:
 # 注入自定义资源
 inject:
   head:
+    # 内容层抬到雪花之上：雪只在背景与内容间隙飘，不遮挡阅读
+    - <style>#body-wrap{position:relative;z-index:1}</style>
   bottom:
     - <script defer src="/js/snow.js"></script>

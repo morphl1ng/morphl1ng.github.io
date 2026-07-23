@@ -8,7 +8,7 @@
 
   var canvas = document.createElement('canvas');
   canvas.id = 'snow-canvas';
-  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;';
+  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;';
   document.body.appendChild(canvas);
   var ctx = canvas.getContext('2d');
 
@@ -35,9 +35,8 @@
   }
 
   function snowColor() {
-    return document.documentElement.getAttribute('data-theme') === 'dark'
-      ? '255,255,255'
-      : '148,184,243';
+    // 雪夜背景为深色，统一用白色雪花最自然
+    return '255,255,255';
   }
 
   function draw() {
