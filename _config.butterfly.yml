@@ -2,6 +2,8 @@
 # 完整配置项文档: https://butterfly.js.org/posts/4aa8abbe/
 
 # 顶部导航菜单
+favicon: /img/favicon.ico
+
 menu:
   首页: / || fas fa-home
   归档: /archives/ || fas fa-archive
@@ -17,8 +19,8 @@ social:
 # background: url(https://你的图床/xxx.jpg)
 background:
 
-# 文章页顶部大图高度
-index_top_img_height: 70
+# 首页顶部大图高度（必须是带单位的字符串，如 '70%'、'100vh'）
+index_top_img_height: '70%'
 
 # 深色模式（导航栏有切换按钮）
 darkmode:
