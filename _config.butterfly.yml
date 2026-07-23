@@ -1,0 +1,54 @@
+# Butterfly 主题配置（覆盖主题默认值，升级主题不受影响）
+# 完整配置项文档: https://butterfly.js.org/posts/4aa8abbe/
+
+# 顶部导航菜单
+menu:
+  首页: / || fas fa-home
+  归档: /archives/ || fas fa-archive
+  标签: /tags/ || fas fa-tags
+  分类: /categories/ || fas fa-folder-open
+  关于: /about/ || fas fa-user-circle
+
+# 侧栏社交图标
+social:
+  fab fa-github: https://github.com/morphl1ng || GitHub
+
+# 全局背景（默认渐变色；换成二次元背景图时填图片 URL，如:
+# background: url(https://你的图床/xxx.jpg)
+background:
+
+# 文章页顶部大图高度
+index_top_img_height: 70
+
+# 深色模式（导航栏有切换按钮）
+darkmode:
+  enable: true
+  autoChangeMode: false
+
+# 代码块
+code:
+  copy: true
+  copyright:
+    enable: true
+
+# 页脚
+footer:
+  owner:
+    enable: true
+    since: 2026
+
+# 右侧边栏
+aside:
+  enable: true
+  card_author:
+    enable: true
+    description: 记录与思考
+  card_announcement:
+    enable: true
+    content: 欢迎来到我的博客 🎉
+
+# 不蒜子访问统计（轻量、免注册）
+busuanzi:
+  site_uv: true
+  site_pv: true
+  page_pv: true
