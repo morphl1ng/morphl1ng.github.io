@@ -15,11 +15,11 @@ menu:
 social:
   fab fa-github: https://github.com/morphl1ng || GitHub
 
-# 全局背景：雪夜图（SVG 矢量，source/img/snow-night.svg）
-background: url(/img/snow-night.svg)
+# 全局背景：雪夜图（注意：只写路径，主题会自动包装 url()）
+background: /img/snow-night.svg
 
-# 首页顶部大图高度（必须是带单位的字符串，如 '70%'、'100vh'）
-index_top_img_height: '70%'
+# 首页顶部大图高度（全屏沉浸式）
+index_top_img_height: '100vh'
 
 # 深色模式（导航栏有切换按钮）
 darkmode:
@@ -59,10 +59,11 @@ busuanzi:
   site_pv: false
   page_pv: false
 
-# 本地搜索（需要 hexo-generator-searchdb，已安装；菜单栏会出现放大镜）
-local_search:
-  enable: true
-  preload: false
+# 本地搜索（Butterfly 5.x 新格式；需要 hexo-generator-searchdb，已安装）
+search:
+  use: local_search
+  local_search:
+    preload: false
 
 # 评论系统 giscus（基于 GitHub Discussions）
 comments:
