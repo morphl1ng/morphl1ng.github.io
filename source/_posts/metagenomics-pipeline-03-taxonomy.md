@@ -8,11 +8,9 @@ tags:
   - k-mer
   - 物种分类
 categories:
-  - 生物信息学
+  - 宏基因组
 mathjax: true
 ---
-
-
 > **系列导航**：
 > [（一）数据预处理与组装](/2026/07/30/metagenomics-pipeline-01-data-preprocessing/) ·
 > [（二）基因预测与定量](/2026/07/30/metagenomics-pipeline-02-gene-prediction/) ·
@@ -22,7 +20,6 @@ mathjax: true
 > [（六）差异分析与标志物发现](/2026/07/30/metagenomics-pipeline-06-differential-analysis/) ·
 > [（七）功能差异与报告](/2026/07/30/metagenomics-pipeline-07-functional-diff-report/) ·
 > [（八）附录与速查](/2026/07/30/metagenomics-pipeline-08-appendix/)
-
 
 宏基因组物种分类的核心问题：给定一段测序 reads，判断它来自哪个微生物物种。这本质上是一个**高维、多类别的序列分类问题**——参考数据库包含数万个物种、数十亿碱基，而每条 read 仅 100–300 bp。
 
@@ -38,19 +35,25 @@ Kraken 2（Wood et al., 2019）通过 **Compact Hash Table（CHT）** 和 **mini
 
 令 reads 集合为：
 
-$$R = \{r_1, r_2, \dots, r_N\}$$
+$$
+R = \{r_1, r_2, \dots, r_N\}
+$$
 
 每条 read $r_i$ 是长度 $L_i$ 的核苷酸序列，$L_i \in \{100, 150, 250\}$。
 
 参考基因组数据库：
 
-$$G = \{(g_1, t_1), (g_2, t_2), \dots, (g_M, t_M)\}$$
+$$
+G = \{(g_1, t_1), (g_2, t_2), \dots, (g_M, t_M)\}
+$$
 
 其中 $g_j$ 是参考基因组序列（跨越从完整染色体到质粒的各类序列），$t_j$ 是分类学标签（taxid）。
 
 目标是构建分类函数：
 
-$$f: R \to T$$
+$$
+f: R \to T
+$$
 
 将每条 read 映射到分类学树 $T = (V, E)$ 上的一个节点。
 
@@ -58,7 +61,9 @@ $$f: R \to T$$
 
 NCBI 分类学树是**有根有序树**，从根到物种共 7 个标准层级：
 
-$$T = \{ \text{Root}, \text{Kingdom}, \text{Phylum}, \text{Class}, \text{Order}, \text{Family}, \text{Genus}, \text{Species} \}$$
+$$
+T = \{ \text{Root}, \text{Kingdom}, \text{Phylum}, \text{Class}, \text{Order}, \text{Family}, \text{Genus}, \text{Species} \}
+$$
 
 每个节点 $v \in V$ 具有唯一的 taxonomy ID（taxid）。祖先关系形成偏序：$v \prec w$ 表示 $v$ 是 $w$ 的祖先。
 
@@ -66,7 +71,9 @@ $$T = \{ \text{Root}, \text{Kingdom}, \text{Phylum}, \text{Class}, \text{Order},
 
 k-mer 分类基于**子序列共享性**：若两条序列共享足够多的 k-mer，它们很可能具有共同的进化起源。
 
-$$P(\text{same source} \mid \text{shared k-mers}) \to 1 \quad \text{as} \quad \frac{|\text{shared k-mers}|}{|\text{total k-mers}|} \to 1$$
+$$
+P(\text{same source} \mid \text{shared k-mers}) \to 1 \quad \text{as} \quad \frac{|\text{shared k-mers}|}{|\text{total k-mers}|} \to 1
+$$
 
 Kraken 1/2 的实现策略：为每个 k-mer 预先计算其在该 k-mer 出现的所有参考基因组中的 **最低共同祖先（LCA）**，构建 k-mer → LCA 的映射表。分类时只需查表即可。
 
@@ -76,13 +83,13 @@ Kraken 1/2 的实现策略：为每个 k-mer 预先计算其在该 k-mer 出现�
 
 ### 2.1 Kraken 1 vs Kraken 2 的数据库对比
 
-| 特性 | Kraken 1 | Kraken 2 |
-|------|----------|----------|
-| 数据结构 | 排序的 k-mer/LCA 列表 + minimizer 索引 | 概率性紧凑哈希表 |
-| 每 k-mer 存储 | 64-bit key + 32-bit value = 96 bits | 32 bits（截断哈希 + 分类ID） |
-| 参考 9.1 Gbp 内存 | ~72.4 GB | ~10.6 GB |
-| 查询方式 | 二分查找 | O(1) 哈希查找 |
-| 冲突处理 | 无（精确匹配） | 线性探测（概率性） |
+| 特性              | Kraken 1                               | Kraken 2                     |
+| ----------------- | -------------------------------------- | ---------------------------- |
+| 数据结构          | 排序的 k-mer/LCA 列表 + minimizer 索引 | 概率性紧凑哈希表             |
+| 每 k-mer 存储     | 64-bit key + 32-bit value = 96 bits    | 32 bits（截断哈希 + 分类ID） |
+| 参考 9.1 Gbp 内存 | ~72.4 GB                               | ~10.6 GB                     |
+| 查询方式          | 二分查找                               | O(1) 哈希查找                |
+| 冲突处理          | 无（精确匹配）                         | 线性探测（概率性）           |
 
 Kraken 1 每个 k-mer 存储一个键值对（key-value pair）：
 
@@ -91,11 +98,15 @@ Kraken 1 每个 k-mer 存储一个键值对（key-value pair）：
 
 **内存计算**：对于 9.1 Gbp 的参考基因组，k-mer 总数为：
 
-$$N_{kmer} \approx \sum_{j=1}^{M} (|g_j| - k + 1) \approx 9.1 \times 10^9$$
+$$
+N_{kmer} \approx \sum_{j=1}^{M} (|g_j| - k + 1) \approx 9.1 \times 10^9
+$$
 
 每个 k-mer 96 bits = 12 bytes，总内存：
 
-$$9.1 \times 10^9 \times 12 \div 2^{30} \approx 101.6 \text{ GB}$$
+$$
+9.1 \times 10^9 \times 12 \div 2^{30} \approx 101.6 \text{ GB}
+$$
 
 Kraken 1 通过 minimizer 索引分组减少存储，但依然需要 ~72.4 GB。
 
@@ -103,19 +114,26 @@ Kraken 1 通过 minimizer 索引分组减少存储，但依然需要 ~72.4 GB。
 
 Kraken 2 的 CHT 是一个**固定大小的数组** $T$，每个单元 32 bits：
 
-$$T[i] = \langle c, t \rangle \quad \text{where } |c| = b,\ |t| = 32 - b$$
+$$
+T[i] = \langle c, t \rangle \quad \text{where } |c| = b,\ |t| = 32 - b
+$$
 
 其中 $c$ 是**截断的紧凑哈希码**，$t$ 是**分类学 ID**。
 
 **哈希函数**：Kraken 2 使用自定义哈希函数 $h(K)$，将 k-mer $K$ 映射到 CHT 中的一个位置：
 
-$$h(K) = \text{hash}(K) \bmod |T|$$
+$$
+h(K) = \text{hash}(K) \bmod |T|
+$$
 
 **线性探测**：当发生哈希碰撞时：
 
-$$T[\text{probe}(j)] \quad \text{where} \quad \text{probe}(j) = (h(K) + j) \bmod |T|,\ j = 0, 1, 2, \dots$$
+$$
+T[\text{probe}(j)] \quad \text{where} \quad \text{probe}(j) = (h(K) + j) \bmod |T|,\ j = 0, 1, 2, \dots
+$$
 
 直到以下条件之一满足：
+
 1. 找到一个空单元 → k-mer 不在数据库中（未分类）
 2. 找到一个匹配的截断哈希码 → 返回对应的分类 ID
 
@@ -125,27 +143,37 @@ CHT 使用**截断哈希码**代替完整 key，因此存在哈希冲突导致�
 
 **硬冲突**：两个不同的 k-mer $K_1 \neq K_2$ 的完整哈希码相同。
 
-$$P(\text{hard collision}|K_1, K_2) = \frac{1}{2^{64}} \approx 5.4 \times 10^{-20}$$
+$$
+P(\text{hard collision}|K_1, K_2) = \frac{1}{2^{64}} \approx 5.4 \times 10^{-20}
+$$
 
 可忽略。
 
 **软冲突**：两个不同 k-mer 的截断哈希码相同（完整哈希不同，但低 $b$ bits 相同）。
 
-$$P(\text{soft collision}|K_1, K_2) = \frac{1}{2^b}$$
+$$
+P(\text{soft collision}|K_1, K_2) = \frac{1}{2^b}
+$$
 
 对于默认 $b = 14$：$P = 1 / 2^{14} \approx 6.1 \times 10^{-5}$。
 
 **整体错误率**：使用**欧拉-马歇罗尼近似**，给定 $k$ 个 key 和表大小 $N$：
 
-$$P(\text{no collision}) \approx e^{-k(k-1)/(2N)}$$
+$$
+P(\text{no collision}) \approx e^{-k(k-1)/(2N)}
+$$
 
 对于 Kraken 2 默认设置（负载因子 70%，$b = 14$）：
 
-$$P(\text{any collision}) = 1 - e^{-0.7^2 \cdot N / 2} \approx 0.22$$
+$$
+P(\text{any collision}) = 1 - e^{-0.7^2 \cdot N / 2} \approx 0.22
+$$
 
 但**单个 k-mer 的错误不等于 read 级别的分类错误**。Kraken 2 对所有 k-mer 进行投票：
 
-$$\text{class}(r) = \underset{t \in T}{\arg\max} \sum_{K \in \text{k-mers}(r)} w_K \cdot \mathbb{1}[\text{CHT\_lookup}(K) = t]$$
+$$
+\text{class}(r) = \underset{t \in T}{\arg\max} \sum_{K \in \text{k-mers}(r)} w_K \cdot \mathbb{1}[\text{CHT\_lookup}(K) = t]
+$$
 
 通过多 k-mer 投票机制，单 k-mer 假阳性的影响被显著稀释。实验表明 read 级别的分类错误率 $< 0.016\%$。
 
@@ -163,7 +191,9 @@ $$\text{class}(r) = \underset{t \in T}{\arg\max} \sum_{K \in \text{k-mers}(r)} w
 
 给定 k-mer $K$，其 minimizer 定义为：
 
-$$m(K) = \underset{s \in \text{substrings}(K, \ell)}{\arg\min} \text{lex}(s)$$
+$$
+m(K) = \underset{s \in \text{substrings}(K, \ell)}{\arg\min} \text{lex}(s)
+$$
 
 其中 $\text{substrings}(K, \ell)$ 是 $K$ 中所有长度为 $\ell$ 的子串，$\text{lex}(s)$ 是字符串 $s$ 的字典序编码。
 
@@ -199,7 +229,9 @@ k-mer₂: positions [1, 36) → minimizer = min of 31-mers in [1, 36)
 
 Kraken 2 对 minimizer 应用 **bitwise XOR** 操作：
 
-$$m'(K) = m(K) \oplus \text{XOR\_MASK}$$
+$$
+m'(K) = m(K) \oplus \text{XOR\_MASK}
+$$
 
 其中 $\text{XOR\_MASK}$ 是预定义的常量。这类似于 Locality-Sensitive Hashing 中的随机投影：通过位运算打乱核酸编码，使得低复杂度序列不再具有系统性的极小值优势。
 
@@ -213,13 +245,17 @@ $$m'(K) = m(K) \oplus \text{XOR\_MASK}$$
 
 **Mask**（$s=7$）：
 
-$$\text{mask} = 1110111011101110111011101110111$$
+$$
+\text{mask} = 1110111011101110111011101110111
+$$
 
 其中 1 表示匹配位置，0 表示屏蔽位置（可忽略）。
 
 ### 4.2 有效长度
 
-$$L_{\text{effective}} = \ell - s = 31 - 7 = 24$$
+$$
+L_{\text{effective}} = \ell - s = 31 - 7 = 24
+$$
 
 即每个 minimizer 中只有 24 个碱基参与实际比较。
 
@@ -227,7 +263,9 @@ $$L_{\text{effective}} = \ell - s = 31 - 7 = 24$$
 
 Spaced seed 增加**灵敏度**（减少假阴性）：当突变恰好发生在屏蔽位置时，seed 仍然匹配。
 
-$$P(\text{seed match} \mid \text{真实同源}) = (1 - d)^{3/7 \cdot \ell}$$
+$$
+P(\text{seed match} \mid \text{真实同源}) = (1 - d)^{3/7 \cdot \ell}
+$$
 
 其中 $d$ 是期望突变率，$3/7$ 是匹配位置占比。
 
@@ -243,7 +281,9 @@ Kraken 2 默认 $s = 7$ 是经验最优值，在此参数下灵敏度和 PPV 达
 
 对于每个 k-mer $K$，找到包含它的所有参考序列对应的 taxid 集合 $S_K = \{t_1, t_2, \dots\}$，然后计算 LCA：
 
-$$\text{LCA}(K) = \text{lca}(t_1, t_2, \dots, t_n)$$
+$$
+\text{LCA}(K) = \text{lca}(t_1, t_2, \dots, t_n)
+$$
 
 其中 $\text{lca}()$ 使用分类学树的预计算**欧拉序 + RMQ** 实现 $O(1)$ 查询。
 
@@ -251,7 +291,9 @@ $$\text{LCA}(K) = \text{lca}(t_1, t_2, \dots, t_n)$$
 
 Kraken 2 使用 **BFS 编号** 确保祖先节点的编号小于后代节点：
 
-$$\forall u, v \in V:\ u \prec v \iff \text{bfs\_id}(u) < \text{bfs\_id}(v)$$
+$$
+\forall u, v \in V:\ u \prec v \iff \text{bfs\_id}(u) < \text{bfs\_id}(v)
+$$
 
 这样 LCA 计算简化为：
 
@@ -294,13 +336,17 @@ def tax_collapse(tax_abundance, samples, prefix, taxlevel):
 
 ### 6.1 绝对丰度矩阵
 
-$$A \in \mathbb{N}^{\text{taxa} \times \text{samples}}$$
+$$
+A \in \mathbb{N}^{\text{taxa} \times \text{samples}}
+$$
 
 元素 $A_{ij}$ = 样本 $j$ 中映射到分类 $i$ 的 reads 数（或 k-mer 数）。
 
 ### 6.2 相对丰度矩阵
 
-$$R_{ij} = \frac{A_{ij}}{\sum_i A_{ij}}$$
+$$
+R_{ij} = \frac{A_{ij}}{\sum_i A_{ij}}
+$$
 
 即每个样本中各类群的相对比例。这一步是**列归一化**——同一列（样本）的和为 1。
 
@@ -315,15 +361,16 @@ qt_rel[list(metadata.index)] = qt_rel[list(metadata.index)].div(
 
 从种级到门级的逐层级聚合——A 中的列求和 + groupby：
 
-| 层级 | 行数 | 信息量 | 统计功效 |
-|------|------|--------|----------|
-| Species | 高 | 精细 | 低（稀疏） |
-| Genus | ↓ | ↓ | ↑ |
-| Family | ↓ | ↓ | ↑ |
-| ... | ↓ | ↓ | ↑ |
-| Phylum | 低 | 粗糙 | 高 |
+| 层级    | 行数 | 信息量 | 统计功效   |
+| ------- | ---- | ------ | ---------- |
+| Species | 高   | 精细   | 低（稀疏） |
+| Genus   | ↓   | ↓     | ↑         |
+| Family  | ↓   | ↓     | ↑         |
+| ...     | ↓   | ↓     | ↑         |
+| Phylum  | 低   | 粗糙   | 高         |
 
 代码实现循环：
+
 ```python
 for i in range(1, len(taxs)+1):
     tax_collapse(qt, list(metadata.index), 'taxonomy_abs_abund-', i)
@@ -375,7 +422,9 @@ plt.scatter(x_coords, y_coords, s=sizes, c=colors, cmap='viridis')
 2. **坐标变换**：极坐标 $(r, \theta)$ → 笛卡尔坐标
 3. **贝塞尔曲线插值**：连接两个弧段之间的对应位置
 
-$$B(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t)t^2 P_2 + t^3 P_3,\ t \in [0,1]$$
+$$
+B(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t)t^2 P_2 + t^3 P_3,\ t \in [0,1]
+$$
 
 控制点 $P_1, P_2$ 由连接线的弧度半径决定。
 
@@ -386,10 +435,11 @@ $$B(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t)t^2 P_2 + t^3 P_3,\ t \in [0,1]$$
 **两步算法**：
 
 1. **UPGMA 层次聚类**（行和列分别计算）：
+
    - 距离矩阵 $D_{ij} = 1 - \text{corr}(R_{i*}, R_{j*})$
    - 最近邻合并：$d_{(ij),k} = (d_{ik} + d_{jk}) / 2$
-
 2. **颜色归一化**：
+
    - 每行 Z-score 归一化：$z_{ij} = (R_{ij} - \mu_i) / \sigma_i$
    - 映射到 colormap（如 RdBu）
 
@@ -481,21 +531,21 @@ for i in range(1, len(taxs)+1):
 
 **绝对丰度表（属级）**：
 
-| Taxonomy | Sample_A | Sample_B | Sample_C |
-|----------|----------|----------|----------|
-| Bacteroides | 15234 | 8932 | 21045 |
-| Prevotella | 8721 | 15678 | 5432 |
-| Faecalibacterium | 6543 | 4321 | 9876 |
-| ... | ... | ... | ... |
+| Taxonomy         | Sample_A | Sample_B | Sample_C |
+| ---------------- | -------- | -------- | -------- |
+| Bacteroides      | 15234    | 8932     | 21045    |
+| Prevotella       | 8721     | 15678    | 5432     |
+| Faecalibacterium | 6543     | 4321     | 9876     |
+| ...              | ...      | ...      | ...      |
 
 **相对丰度表（门级）**：
 
-| Taxonomy | Sample_A | Sample_B | Sample_C |
-|----------|----------|----------|----------|
-| Bacteroidota | 0.452 | 0.389 | 0.512 |
-| Firmicutes | 0.321 | 0.445 | 0.278 |
-| Proteobacteria | 0.112 | 0.089 | 0.134 |
-| Actinobacteriota | 0.065 | 0.045 | 0.048 |
+| Taxonomy         | Sample_A | Sample_B | Sample_C |
+| ---------------- | -------- | -------- | -------- |
+| Bacteroidota     | 0.452    | 0.389    | 0.512    |
+| Firmicutes       | 0.321    | 0.445    | 0.278    |
+| Proteobacteria   | 0.112    | 0.089    | 0.134    |
+| Actinobacteriota | 0.065    | 0.045    | 0.048    |
 
 **解读**：Bacteroidota 在三个样本中均占主导地位（39–51%），但 Sample_C 中占比最高，提示可能与该样本的饮食/疾病状态相关。
 

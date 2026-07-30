@@ -9,11 +9,9 @@ tags:
   - CARD
   - 功能注释
 categories:
-  - 生物信息学
+  - 宏基因组
 mathjax: true
 ---
-
-
 > **系列导航**：
 > [（一）数据预处理与组装](/2026/07/30/metagenomics-pipeline-01-data-preprocessing/) ·
 > [（二）基因预测与定量](/2026/07/30/metagenomics-pipeline-02-gene-prediction/) ·
@@ -23,7 +21,6 @@ mathjax: true
 > [（六）差异分析与标志物发现](/2026/07/30/metagenomics-pipeline-06-differential-analysis/) ·
 > [（七）功能差异与报告](/2026/07/30/metagenomics-pipeline-07-functional-diff-report/) ·
 > [（八）附录与速查](/2026/07/30/metagenomics-pipeline-08-appendix/)
-
 
 前三章我们完成了从原始 reads 到 unigene catalog 的构建。现在面临的核心问题是：**这些成千上万的基因有什么功能？** 本章系统讲解从 Diamond 序列比对到 15+ 个功能数据库注释的完整算法栈，逐库拆解数据结构和映射逻辑。
 
@@ -37,18 +34,22 @@ mathjax: true
 
 BLASTp 的核心是 **Smith-Waterman 动态规划**：
 
-$$S[i][j] = \max\begin{cases}
+$$
+S[i][j] = \max\begin{cases}
 0 \\
 S[i-1][j-1] + \text{subst}(a_i, b_j) \\
 S[i-1][j] - g \\
 S[i][j-1] - g
-\end{cases}$$
+\end{cases}
+$$
 
 时间复杂度 $O(m \times n)$ 每对比对。
 
 在宏基因组场景中，查询基因数 $N \sim 10^5$，数据库大小 $M \sim 10^8$。即使经过 BLASTp 的 seed-extend 启发式，总计算量仍为：
 
-$$O(N \times M \times k_{\text{seeds}}) \sim 10^{13}\ \text{次操作} \to \text{不可行}$$
+$$
+O(N \times M \times k_{\text{seeds}}) \sim 10^{13}\ \text{次操作} \to \text{不可行}
+$$
 
 ### 1.2 Diamond 的双索引策略
 
@@ -58,27 +59,35 @@ Diamond（Buchfink et al., 2015）的关键创新是**双索引**——同时对
 
 将每个查询序列的所有 k-mer 存入哈希表 $H_Q$：
 
-$$H_Q[k] = \{ (q_i, \text{pos}_{i,j}) \mid \text{k-mer } k \text{ 出现在查询 } q_i \text{ 的位置 } \text{pos}_{i,j} \}$$
+$$
+H_Q[k] = \{ (q_i, \text{pos}_{i,j}) \mid \text{k-mer } k \text{ 出现在查询 } q_i \text{ 的位置 } \text{pos}_{i,j} \}
+$$
 
 **第二层索引**（数据库侧）：
 
-$$H_D[k] = \{ (d_i, \text{pos}_{i,j}) \mid \text{k-mer } k \text{ 出现在数据库序列 } d_i \text{ 的位置 } \text{pos}_{i,j} \}$$
+$$
+H_D[k] = \{ (d_i, \text{pos}_{i,j}) \mid \text{k-mer } k \text{ 出现在数据库序列 } d_i \text{ 的位置 } \text{pos}_{i,j} \}
+$$
 
 **共指匹配**：
 
-$$M = \{ k \mid k \in \text{keys}(H_Q) \cap \text{keys}(H_D) \}$$
+$$
+M = \{ k \mid k \in \text{keys}(H_Q) \cap \text{keys}(H_D) \}
+$$
 
 即两个哈希表的键交集。每出现一个共享 k-mer，生成一个候选种子：
 
-$$\text{seeds} = \{ (q_i, d_j, \text{offset}) \mid \exists k \in M \text{ with positions in } q_i \text{ and } d_j \}$$
+$$
+\text{seeds} = \{ (q_i, d_j, \text{offset}) \mid \exists k \in M \text{ with positions in } q_i \text{ and } d_j \}
+$$
 
 ### 1.3 性能对比
 
-| 指标 | BLASTp | Diamond | 加速比 |
-|------|--------|---------|--------|
-| 灵敏度 | 100%（基准） | 99%+ | — |
-| 速度 | 1× | 500–20,000× | 2–4 个数量级 |
-| 10^5 queries × 10^8 DB | ~500 小时 | ~1 分钟 | 30,000× |
+| 指标                    | BLASTp       | Diamond       | 加速比        |
+| ----------------------- | ------------ | ------------- | ------------- |
+| 灵敏度                  | 100%（基准） | 99%+          | —            |
+| 速度                    | 1×          | 500–20,000× | 2–4 个数量级 |
+| 10^5 queries × 10^8 DB | ~500 小时    | ~1 分钟       | 30,000×      |
 
 ### 1.4 种子扩展算法
 
@@ -192,11 +201,11 @@ kegg[['Unigene_id','PathwayL1','PathwayL2','PathwayL3',
 
 **结果示例**：
 
-| Unigene_id | PathwayL1 | PathwayL2 | PathwayL3 | KO_Entry | KO_name | KO_description |
-|------------|-----------|-----------|-----------|----------|---------|----------------|
-| gene_00001 | Metabolism | Carbohydrate metabolism | Glycolysis / Gluconeogenesis | K00844 | HK | hexokinase |
-| gene_00002 | Metabolism | Energy metabolism | Methane metabolism | K00123 | mcrA | methyl-coenzyme M reductase |
-| gene_00003 | GIP | Translation | Ribosome | K02934 | RPS1 | ribosomal protein S1 |
+| Unigene_id | PathwayL1  | PathwayL2               | PathwayL3                    | KO_Entry | KO_name | KO_description              |
+| ---------- | ---------- | ----------------------- | ---------------------------- | -------- | ------- | --------------------------- |
+| gene_00001 | Metabolism | Carbohydrate metabolism | Glycolysis / Gluconeogenesis | K00844   | HK      | hexokinase                  |
+| gene_00002 | Metabolism | Energy metabolism       | Methane metabolism           | K00123   | mcrA    | methyl-coenzyme M reductase |
+| gene_00003 | GIP        | Translation             | Ribosome                     | K02934   | RPS1    | ribosomal protein S1        |
 
 **解读**：gene_00001 被注释为己糖激酶（HK），参与糖酵解第一步骤——葡萄糖 → 葡萄糖-6-磷酸。该基因在代谢活跃的样本中预期高表达。
 
@@ -274,13 +283,13 @@ gene_001    P12345      GO:0005575
 
 eggNOG（evolutionary genealogy of genes: Non-supervised Orthologous Groups）使用 **COG 功能分类字母代码**（22 类，A–Z）：
 
-| 代码 | 功能类别 | 代码 | 功能类别 |
-|------|----------|------|----------|
-| J | 翻译、核糖体结构与生物发生 | C | 能量产生与转化 |
-| K | 转录 | G | 碳水化合物运输与代谢 |
-| L | 复制、重组与修复 | E | 氨基酸运输与代谢 |
-| O | 翻译后修饰、蛋白周转、伴侣 | P | 无机离子运输与代谢 |
-| M | 细胞壁/膜/包膜生物发生 | S | 功能未知 |
+| 代码 | 功能类别                   | 代码 | 功能类别             |
+| ---- | -------------------------- | ---- | -------------------- |
+| J    | 翻译、核糖体结构与生物发生 | C    | 能量产生与转化       |
+| K    | 转录                       | G    | 碳水化合物运输与代谢 |
+| L    | 复制、重组与修复           | E    | 氨基酸运输与代谢     |
+| O    | 翻译后修饰、蛋白周转、伴侣 | P    | 无机离子运输与代谢   |
+| M    | 细胞壁/膜/包膜生物发生     | S    | 功能未知             |
 
 **比对策略**：Diamond blastp → emapper（HMM 二次过滤）
 
@@ -326,14 +335,14 @@ result['COG_Description'] = result['COG_Class'].map(cogdict)
 
 **6 大酶类**：
 
-| 缩写 | 全称 | 功能 |
-|------|------|------|
-| GH | Glycoside Hydrolases | 糖苷水解酶 - 断裂糖苷键 |
-| GT | GlycosylTransferases | 糖基转移酶 - 形成糖苷键 |
-| PL | Polysaccharide Lyases | 多糖裂解酶 - 非水解性断裂 |
-| CE | Carbohydrate Esterases | 碳水化合物酯酶 |
-| AA | Auxiliary Activities | 辅助氧化还原酶 |
-| CBM | Carbohydrate-Binding Modules | 碳水化合物结合模块 |
+| 缩写 | 全称                         | 功能                      |
+| ---- | ---------------------------- | ------------------------- |
+| GH   | Glycoside Hydrolases         | 糖苷水解酶 - 断裂糖苷键   |
+| GT   | GlycosylTransferases         | 糖基转移酶 - 形成糖苷键   |
+| PL   | Polysaccharide Lyases        | 多糖裂解酶 - 非水解性断裂 |
+| CE   | Carbohydrate Esterases       | 碳水化合物酯酶            |
+| AA   | Auxiliary Activities         | 辅助氧化还原酶            |
+| CBM  | Carbohydrate-Binding Modules | 碳水化合物结合模块        |
 
 **数据库 ID 前缀分类法**：CAZy 家族名称自带前缀信息，如 `GH5`、`GT2`、`CBM48`。
 
@@ -402,11 +411,11 @@ if card.shape[0] > 0:
 
 **结果示例**：
 
-| Unigene_id | ARO_Name | Resistance_Mechanism | Drug_Class | Antibiotic |
-|------------|----------|---------------------|------------|------------|
-| gene_01234 | TEM-1 | Antibiotic inactivation | beta-lactam | ampicillin |
-| gene_05678 | tetA | Antibiotic efflux | tetracycline | tetracycline |
-| gene_09012 | sul1 | Antibiotic target alteration | sulfonamide | sulfamethoxazole |
+| Unigene_id | ARO_Name | Resistance_Mechanism         | Drug_Class   | Antibiotic       |
+| ---------- | -------- | ---------------------------- | ------------ | ---------------- |
+| gene_01234 | TEM-1    | Antibiotic inactivation      | beta-lactam  | ampicillin       |
+| gene_05678 | tetA     | Antibiotic efflux            | tetracycline | tetracycline     |
+| gene_09012 | sul1     | Antibiotic target alteration | sulfonamide  | sulfamethoxazole |
 
 ### 3.6 VFDB (Virulence Factor Database)
 
@@ -435,13 +444,13 @@ result.to_csv(vfdb_diomand.replace('.txt','_VFDB.tsv'), sep='\t', index=False)
 
 **PHI 表型分类**：
 
-| 表型 | 含义 |
-|------|------|
-| reduced virulence | 毒力降低 |
+| 表型                     | 含义       |
+| ------------------------ | ---------- |
+| reduced virulence        | 毒力降低   |
 | unaffected pathogenicity | 致病性不变 |
-| increased virulence | 毒力增强 |
-| lethal | 致死 |
-| loss of pathogenicity | 丧失致病性 |
+| increased virulence      | 毒力增强   |
+| lethal                   | 致死       |
+| loss of pathogenicity    | 丧失致病性 |
 
 **代码** (`function_phi.py`):
 
@@ -461,12 +470,12 @@ phi['Phenotype'] = phi['dbid_split'].str[5]
 
 **mobileOG-db 分类**：
 
-| Major Category | 功能 |
-|----------------|------|
-| integration/excision | 整合/切除 |
+| Major Category                   | 功能           |
+| -------------------------------- | -------------- |
+| integration/excision             | 整合/切除      |
 | replication/recombination/repair | 复制/重组/修复 |
-| transfer | 水平转移 |
-| stability/transfer/defense | 稳传/防御 |
+| transfer                         | 水平转移       |
+| stability/transfer/defense       | 稳传/防御      |
 
 **代码** (`function_mobileOG-db.py`):
 
@@ -518,13 +527,13 @@ bacmat = pd.merge(bacmat, bacmat_annotation, on='BacMet_ID', how='left')
 
 **Category 分类**：
 
-| 类别 | 功能 |
-|------|------|
-| Iron acquisition | 铁摄取（siderophore 合成/转运） |
-| Iron storage | 铁储存（ferritin, bacterioferritin） |
-| Iron reduction | 铁还原 |
-| Iron oxidation | 铁氧化 |
-| Iron regulation | 铁调控（Fur box, ...） |
+| 类别             | 功能                                 |
+| ---------------- | ------------------------------------ |
+| Iron acquisition | 铁摄取（siderophore 合成/转运）      |
+| Iron storage     | 铁储存（ferritin, bacterioferritin） |
+| Iron reduction   | 铁还原                               |
+| Iron oxidation   | 铁氧化                               |
+| Iron regulation  | 铁调控（Fur box, ...）               |
 
 **代码** (`function_fegenie.py`):
 
@@ -582,13 +591,13 @@ result.to_csv('Probiotics.tsv', sep='\t', index=False)
 
 5 个元素循环专用数据库，结构与代码高度一致：
 
-| 数据库 | 分析的元素 | DB ID 前缀 | 代码文件 |
-|--------|-----------|------------|----------|
-| **MCycDB** | 甲烷循环 | `MCycDB_Hit` | `function_mcycdb.py` |
-| **NCycDB** | 氮循环 | `NCycDB_Hit` | `function_ncycdb.py` |
-| **SCycDB** | 硫循环 | `SCycDB_Hit` | `function_scycdb.py` |
-| **PCycDB** | 磷循环 | `PCyCDB_Hit` | `function_pcycdb.py` |
-| **AsgeneDB** | 砷代谢 | `AsgeneDB_Hit` | `function_asgenedb.py` |
+| 数据库             | 分析的元素 | DB ID 前缀       | 代码文件                 |
+| ------------------ | ---------- | ---------------- | ------------------------ |
+| **MCycDB**   | 甲烷循环   | `MCycDB_Hit`   | `function_mcycdb.py`   |
+| **NCycDB**   | 氮循环     | `NCycDB_Hit`   | `function_ncycdb.py`   |
+| **SCycDB**   | 硫循环     | `SCycDB_Hit`   | `function_scycdb.py`   |
+| **PCycDB**   | 磷循环     | `PCyCDB_Hit`   | `function_pcycdb.py`   |
+| **AsgeneDB** | 砷代谢     | `AsgeneDB_Hit` | `function_asgenedb.py` |
 
 **统一注释架构**：
 
@@ -613,11 +622,11 @@ def annotate_cycle_db(diamond_file, idmap_file, annotation_file, db_name):
 
 **示例（MCycDB — 甲烷循环）**：
 
-| Unigene_id | Pathway | Gene | Annotation |
-|------------|---------|------|------------|
-| gene_001 | Methanogenesis | mcrA | Methyl-coenzyme M reductase alpha subunit |
-| gene_002 | Methanogenesis | mttB | Trimethylamine methyltransferase |
-| gene_003 | Methane oxidation | pmoA | Particulate methane monooxygenase |
+| Unigene_id | Pathway           | Gene | Annotation                                |
+| ---------- | ----------------- | ---- | ----------------------------------------- |
+| gene_001   | Methanogenesis    | mcrA | Methyl-coenzyme M reductase alpha subunit |
+| gene_002   | Methanogenesis    | mttB | Trimethylamine methyltransferase          |
+| gene_003   | Methane oxidation | pmoA | Particulate methane monooxygenase         |
 
 **解读**：mcrA 是甲烷生成的标记基因（催化最后一步），pmoA 是甲烷氧化的标记基因。两者同时出现暗示样本中同时存在产甲烷菌和甲烷氧化菌——这在厌氧-好氧界面（如水稻田）中常见。
 
@@ -638,11 +647,15 @@ def annotate_cycle_db(diamond_file, idmap_file, annotation_file, db_name):
 
 **通路级丰度**：
 
-$$p = A^T \times g$$
+$$
+p = A^T \times g
+$$
 
 即：
 
-$$p_j = \sum_{i=1}^{n_{\text{genes}}} A_{ij} \cdot g_i = \sum_{i \in \text{Pathway}_j} g_i$$
+$$
+p_j = \sum_{i=1}^{n_{\text{genes}}} A_{ij} \cdot g_i = \sum_{i \in \text{Pathway}_j} g_i
+$$
 
 ### 4.2 unigene_function_combine.py 的实现
 
@@ -703,26 +716,26 @@ p = A^T × g = 通路1: [10+3, 5+8] = [13, 13]
 
 所有功能数据库注释完成后，各数据库的输出文件汇总：
 
-| 数据库 | 输出文件 | 关键列 |
-|--------|----------|--------|
-| KEGG | `*_kegg.txt` | PathwayL1/L2/L3, KO_Entry, KO_name |
-| GO | `GO_state.tsv` | GO_ID, GO_Term, GO_Function |
-| eggNOG | `*_eggNOG.tsv` | NOG, COG_Class, COG_Description |
-| CAZy | `*_cazy.tsv` | Class, Family |
-| CARD | `*_CARD.tsv` | ARO_Name, Resistance_Mechanism, Drug_Class |
-| VFDB | `*_VFDB.tsv` | 毒力因子名称 |
-| PHI | `*_PHI.tsv` | Pathogen_Species, Phenotype |
-| mobileOG | `*_mobileOG.tsv` | Major_mobileOG_Category |
-| MGEs | `*_MGEs.tsv` | MGE_type, MGE_class |
-| PlasticDB | `*_PlasticDB.tsv` | Enzyme_Type, Plastic |
-| BacMet | `*_BacMet.tsv` | Compound, Resistance |
-| FeGenie | `*_FeGenie.tsv` | Gene, Category |
-| AsgeneDB | `*_AsgeneDB.tsv` | Pathway, Gene |
-| MCycDB | `*_MCycDB.tsv` | Pathway, Gene |
-| NCycDB | `*_NCycDB.tsv` | Pathway, Gene |
-| SCycDB | `*_SCycDB.tsv` | Pathway, Gene |
-| PCycDB | `*_PCyCDB.tsv` | Metabolic_processes, Gene |
-| Probiotics | `Probiotics.tsv` | Name, 益生菌属性 |
+| 数据库     | 输出文件            | 关键列                                     |
+| ---------- | ------------------- | ------------------------------------------ |
+| KEGG       | `*_kegg.txt`      | PathwayL1/L2/L3, KO_Entry, KO_name         |
+| GO         | `GO_state.tsv`    | GO_ID, GO_Term, GO_Function                |
+| eggNOG     | `*_eggNOG.tsv`    | NOG, COG_Class, COG_Description            |
+| CAZy       | `*_cazy.tsv`      | Class, Family                              |
+| CARD       | `*_CARD.tsv`      | ARO_Name, Resistance_Mechanism, Drug_Class |
+| VFDB       | `*_VFDB.tsv`      | 毒力因子名称                               |
+| PHI        | `*_PHI.tsv`       | Pathogen_Species, Phenotype                |
+| mobileOG   | `*_mobileOG.tsv`  | Major_mobileOG_Category                    |
+| MGEs       | `*_MGEs.tsv`      | MGE_type, MGE_class                        |
+| PlasticDB  | `*_PlasticDB.tsv` | Enzyme_Type, Plastic                       |
+| BacMet     | `*_BacMet.tsv`    | Compound, Resistance                       |
+| FeGenie    | `*_FeGenie.tsv`   | Gene, Category                             |
+| AsgeneDB   | `*_AsgeneDB.tsv`  | Pathway, Gene                              |
+| MCycDB     | `*_MCycDB.tsv`    | Pathway, Gene                              |
+| NCycDB     | `*_NCycDB.tsv`    | Pathway, Gene                              |
+| SCycDB     | `*_SCycDB.tsv`    | Pathway, Gene                              |
+| PCycDB     | `*_PCyCDB.tsv`    | Metabolic_processes, Gene                  |
+| Probiotics | `Probiotics.tsv`  | Name, 益生菌属性                           |
 
 这些文件随后进入统计测试（非参数检验、随机森林、LefSe）和可视化（barplot、bubble plot、clustermap）流程，将在后续章节讲解。
 
@@ -730,15 +743,16 @@ p = A^T × g = 通路1: [10+3, 5+8] = [13, 13]
 
 ## 6. 总结
 
-| 概念 | 数学表示 | 代码实现 |
-|------|----------|----------|
-| 序列比对 | 双索引 + SW 扩展 | Diamond blastp |
-| 功能映射 | UniProt Accession → GO ID (多对多) | `explode()` |
-| 层级通路 | KO → Level3 → Level2 → Level1 | `merge()` |
-| 功能聚合 | $p = A^T \times g$ | `groupby.sum()` |
+| 概念       | 数学表示                            | 代码实现             |
+| ---------- | ----------------------------------- | -------------------- |
+| 序列比对   | 双索引 + SW 扩展                    | Diamond blastp       |
+| 功能映射   | UniProt Accession → GO ID (多对多) | `explode()`        |
+| 层级通路   | KO → Level3 → Level2 → Level1    | `merge()`          |
+| 功能聚合   | $p = A^T \times g$                | `groupby.sum()`    |
 | 丰度归一化 | $R_{ij} = A_{ij} / \sum_i A_{ij}$ | `df.div(df.sum())` |
 
 **性能优化技巧**：
+
 - Diamond 双索引使 $O(NM)$ 降为 $O(N + M)$ 级别的查询
 - 分块 chunk 读取大文件（GO ID 映射等）
 - `drop_duplicates(subset=['Unigene_id'], keep='first')` 只保留最佳 hit

@@ -11,15 +11,20 @@ menu:
   分类: /categories/ || fas fa-folder-open
   关于: /about/ || fas fa-user-circle
 
+# 头像（圆形裁剪）
+avatar:
+  img: /img/avatar.jpg
+  effect: true
+
 # 侧栏社交图标
 social:
   fab fa-github: https://github.com/morphl1ng || GitHub
 
-# 全局背景：雪夜图（注意：只写路径，主题会自动包装 url()）
+# 全局背景：雪夜图（视频背景的视频加载失败时的备选）
 background: /img/snow-night.svg
 
-# 首页顶部大图高度（全屏沉浸式）
-index_top_img_height: '100vh'
+# 禁用首页顶部大图，让视频背景完全透出
+disable_top_img: true
 
 # 深色模式（导航栏有切换按钮）
 darkmode:
@@ -43,7 +48,7 @@ aside:
   enable: true
   card_author:
     enable: true
-    description: 记录与思考
+    description: DOTA全能选手（🐟️塘主版
     button:
       enable: true
       icon: fab fa-github
@@ -91,9 +96,10 @@ giscus:
 # 注入自定义资源
 inject:
   head:
-    # 内容层抬到雪花之上：雪只在背景与内容间隙飘，不遮挡阅读
-    - <style>#body-wrap{position:relative;z-index:1}</style>
+    - <style>#bg-video{position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:-2;pointer-events:none}#bg-overlay{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.35);z-index:-1;pointer-events:none}#body-wrap{position:relative;z-index:1}#footer,#footer-wrap,footer{background:transparent!important}#page-header:not(.not-top-img){background:transparent!important;border-bottom:1px solid rgba(255,255,255,0.1)}#nav{background:transparent!important}</style>
   bottom:
+    - <video id="bg-video" src="/video/background.mp4" autoplay loop muted playsinline></video>
+    - <div id="bg-overlay"></div>
     - <script defer src="/js/snow.js"></script>
 
 # MathJax
