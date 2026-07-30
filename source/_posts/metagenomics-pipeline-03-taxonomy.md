@@ -12,15 +12,17 @@ categories:
 mathjax: true
 ---
 
+
 > **系列导航**：
-> [（一）数据预处理与组装](metagenomics-pipeline-01-data-preprocessing.html) ·
-> [（二）基因预测与定量](metagenomics-pipeline-02-gene-prediction.html) ·
-> [（三）物种分类与可视化](metagenomics-pipeline-03-taxonomy.html) ·
-> [（四）15+ 功能数据库注释](metagenomics-pipeline-04-functional-annotation.html) ·
-> [（五）Alpha/Beta 多样性](metagenomics-pipeline-05-alpha-beta-diversity.html) ·
-> [（六）差异分析与标志物发现](metagenomics-pipeline-06-differential-analysis.html) ·
-> [（七）功能差异与报告](metagenomics-pipeline-07-functional-diff-report.html) ·
-> [（八）附录与速查](metagenomics-pipeline-08-appendix.html)
+> [（一）数据预处理与组装](/2026/07/30/metagenomics-pipeline-01-data-preprocessing/) ·
+> [（二）基因预测与定量](/2026/07/30/metagenomics-pipeline-02-gene-prediction/) ·
+> [（三）物种分类与可视化](/2026/07/30/metagenomics-pipeline-03-taxonomy/) ·
+> [（四）15+ 功能数据库注释](/2026/07/30/metagenomics-pipeline-04-functional-annotation/) ·
+> [（五）Alpha/Beta 多样性](/2026/07/30/metagenomics-pipeline-05-alpha-beta-diversity/) ·
+> [（六）差异分析与标志物发现](/2026/07/30/metagenomics-pipeline-06-differential-analysis/) ·
+> [（七）功能差异与报告](/2026/07/30/metagenomics-pipeline-07-functional-diff-report/) ·
+> [（八）附录与速查](/2026/07/30/metagenomics-pipeline-08-appendix/)
+
 
 宏基因组物种分类的核心问题：给定一段测序 reads，判断它来自哪个微生物物种。这本质上是一个**高维、多类别的序列分类问题**——参考数据库包含数万个物种、数十亿碱基，而每条 read 仅 100–300 bp。
 
@@ -562,14 +564,14 @@ for i in range(1, len(taxs)+1):
 
 *示例：4 组样本在属（Genus）水平的聚类热图。行、列均按 UPGMA 聚类排序，颜色为行 Z-score 归一化（红=高于均值，蓝=低于均值）。可见 CLP 与 NOD2_CLP 聚为一支，sham 与 NOD2_sham 聚为另一支，提示 CLP 处理驱动了群落结构重塑，且 NOD2 敲除改变了基线与处理后的群落组成。*
 
-### Krona 交互式分类饼
+### Krona 分类环状图预览
 
-Krona 生成多层级可交互的分类环状图（HTML 格式），用户可逐层下钻探索样本的物种组成结构。
+Krona 生成多层级可交互的分类环状图，可逐层下钻探索样本的物种组成结构。以下为分组平均后的静态预览图。
 
-- [Krona 全部样本版 (krona_allsample.html)](https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/krona_allsample.html)
-- [Krona 分组平均版 (krona_allgroup.html)](https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/krona_allgroup.html)
+![Krona 全部样本分类环状图](/img/krona_preview.png)
+![Krona 分组平均分类环状图](/img/krona_group_preview.png)
 
-*示例：上为全部样本的 Krona 分类环状图，下为按组平均的 Krona 图。打开后可在浏览器中逐级展开（Phylum → Class → Order → Family → Genus），通过点击扇区观察其下属类群的相对丰度。Krona 在样本量大时比堆叠柱状图更适合交互式探索。*
+*上：全部样本的 Krona 分类预览；下：按组平均的 Krona 预览。完整交互式 HTML（可展开 Kingdom → Phylum → Class → Order → Family → Genus）因文件较大（~88MB）不直接嵌入，需要可联系作者获取。*
 
 ---
 

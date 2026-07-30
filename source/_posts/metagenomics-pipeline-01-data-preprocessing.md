@@ -4,16 +4,17 @@ date: 2026-07-30
 categories: [宏基因组]
 tags: [宏基因组, de Bruijn图, MEGAHIT, fastp, 序列拼接]
 ---
-
+>
 > **系列导航**：
-> [（一）数据预处理与组装](metagenomics-pipeline-01-data-preprocessing.html) ·
-> [（二）基因预测与定量](metagenomics-pipeline-02-gene-prediction.html) ·
-> [（三）物种分类与可视化](metagenomics-pipeline-03-taxonomy.html) ·
-> [（四）15+ 功能数据库注释](metagenomics-pipeline-04-functional-annotation.html) ·
-> [（五）Alpha/Beta 多样性](metagenomics-pipeline-05-alpha-beta-diversity.html) ·
-> [（六）差异分析与标志物发现](metagenomics-pipeline-06-differential-analysis.html) ·
-> [（七）功能差异与报告](metagenomics-pipeline-07-functional-diff-report.html) ·
-> [（八）附录与速查](metagenomics-pipeline-08-appendix.html)
+> [（一）数据预处理与组装](/2026/07/30/metagenomics-pipeline-01-data-preprocessing/) ·
+> [（二）基因预测与定量](/2026/07/30/metagenomics-pipeline-02-gene-prediction/) ·
+> [（三）物种分类与可视化](/2026/07/30/metagenomics-pipeline-03-taxonomy/) ·
+> [（四）15+ 功能数据库注释](/2026/07/30/metagenomics-pipeline-04-functional-annotation/) ·
+> [（五）Alpha/Beta 多样性](/2026/07/30/metagenomics-pipeline-05-alpha-beta-diversity/) ·
+> [（六）差异分析与标志物发现](/2026/07/30/metagenomics-pipeline-06-differential-analysis/) ·
+> [（七）功能差异与报告](/2026/07/30/metagenomics-pipeline-07-functional-diff-report/) ·
+> [（八）附录与速查](/2026/07/30/metagenomics-pipeline-08-appendix/)
+
 
 **摘要**：本文从算法层面系统性解析宏基因组分析的前半程——从 Illumina 原始下机数据到高质量拼接 contigs。涵盖测序噪声模型、fastp 的贝叶斯碱基校正、Bowtie2 的 FM-index 比对原理、MEGAHIT 的 succinct de Bruijn Graph (SdBG) 压缩算法及多 k-mer 迭代策略，以及 QUAST 评估指标的精确定义。所有算法推导均辅以生产级代码注解。
 
@@ -27,16 +28,18 @@ tags: [宏基因组, de Bruijn图, MEGAHIT, fastp, 序列拼接]
 
 Illumina 测序平台在碱基识别 (base calling) 阶段，对每个被识别的碱基赋予一个质量分数 Q，其定义为：
 
-$$Q = -10 \times \log_{10}(P_{\text{error}})$$
+$$
+Q = -10 \times \log_{10}(P_{\text{error}})
+$$
 
 其中 $P_{\text{error}}$ 是该碱基被错误识别的概率。这一映射关系的含义是：
 
-| Q 值 | 错误概率 $P_{\text{error}}$ | 碱基准确度 |
-|------|----------------------------|-----------|
-| Q10  | $10^{-1} = 0.1$ | 90% |
-| Q20  | $10^{-2} = 0.01$ | 99% |
-| Q30  | $10^{-3} = 0.001$ | 99.9% |
-| Q40  | $10^{-4} = 0.0001$ | 99.99% |
+| Q 值 | 错误概率$P_{\text{error}}$ | 碱基准确度 |
+| ---- | ---------------------------- | ---------- |
+| Q10  | $10^{-1} = 0.1$            | 90%        |
+| Q20  | $10^{-2} = 0.01$           | 99%        |
+| Q30  | $10^{-3} = 0.001$          | 99.9%      |
+| Q40  | $10^{-4} = 0.0001$         | 99.99%     |
 
 **Q30 的工程含义**：每 1000 个碱基中预期有 1 个错误。在 30× 人基因组覆盖度下，Q30 意味着约 90M 个错误碱基分布在 3G 基因组中，平均每 33bp 出现一个错误。对于宏基因组，由于物种异质性和重复序列的存在，这一错误率会显著影响 k-mer 频谱的准确性。
 
@@ -44,14 +47,18 @@ $$Q = -10 \times \log_{10}(P_{\text{error}})$$
 
 对于 Paired-end 测序（如 2×150bp），当插入片段长度小于 2×150bp 时，Read1 的 3' 端与 Read2 的 3' 端会发生物理重叠 (overlap)。设插入片段长度为 $L$，读长为 $r$，则 overlap 长度 $O$ 为：
 
-$$O = \max(0, 2r - L)$$
+$$
+O = \max(0, 2r - L)
+$$
 
 对于长度为 $O$ 的 overlap 区域，两条 reads 来自同一原始 DNA 片段的互补链。定义观测概率：
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 P(\text{read1}_i | \text{true base} = b) &= 1 - \varepsilon_{1i} \\
 P(\text{read2}_i | \text{true base} = b') &= 1 - \varepsilon_{2i}
-\end{aligned}$$
+\end{aligned}
+$$
 
 其中 $\varepsilon_{ji} = 10^{-Q_{ji}/10}$ 为第 $j$ 条 read 第 $i$ 位的错误概率，且 Watson-Crick 互补关系 $b' = \text{complement}(b)$。
 
@@ -63,12 +70,14 @@ P(\text{read2}_i | \text{true base} = b') &= 1 - \varepsilon_{2i}
 
 当双端 reads 的插入片段长度为 $L$，读长为 $r$ 且 $L < 2r$ 时，Read1 和 Read2 的 3' 端互为正反向互补序列。若接头未被完整切除，则会在 overlap 区域中检测到不一致模式。fastp 使用 **Smith-Waterman 局部比对算法**生成得分矩阵：
 
-$$H(i,j) = \max\begin{cases}
+$$
+H(i,j) = \max\begin{cases}
 0, & \text{(零起点 — 局部比对)} \\
 H(i-1,j-1) + s(a_i, b_j), & \text{(匹配/错配)} \\
 H(i-1,j) + w_{\text{gap}}, & \text{(列间隙)} \\
 H(i,j-1) + w_{\text{gap}}, & \text{(行间隙)}
-\end{cases}$$
+\end{cases}
+$$
 
 其中 $s(a,b)$ 为替换得分矩阵（匹配 $+2$，错配 $-\text{penalty}$），$w_{\text{gap}}$ 为间隙罚分。回溯最优局部路径得到接头序列。
 
@@ -83,7 +92,9 @@ fastp 使用滑动窗口来切除低质量区域。核心参数：
 
 对 read 从 5' 端开始，滑动步长为 1，计算窗口内碱基的平均质量值：
 
-$$\bar{Q}_j = \frac{1}{w} \sum_{i=j}^{j+w-1} Q_i$$
+$$
+\bar{Q}_j = \frac{1}{w} \sum_{i=j}^{j+w-1} Q_i
+$$
 
 当 $\bar{Q}_j < q$ 时，从位置 $j$ 开始截断 read。算法退化为：若窗口跨过低质量区域，则该区域及后续碱基全部切除。
 
@@ -91,18 +102,24 @@ $$\bar{Q}_j = \frac{1}{w} \sum_{i=j}^{j+w-1} Q_i$$
 
 fastp 的 paired-end 互校正是最被低估的特性之一。对于 overlap 区域中的碱基对 $(R_1_i, R_2_i)$，我们要求后验概率最大的真实碱基：
 
-$$\hat{b} = \arg\max_{b \in \{A,T,C,G\}} P(b | R_1_i, R_2_i, Q_1_i, Q_2_i)$$
+$$
+\hat{b} = \arg\max_{b \in \{A,T,C,G\}} P(b | R_1_i, R_2_i, Q_1_i, Q_2_i)
+$$
 
 由贝叶斯定理：
 
-$$P(b | R_1_i, R_2_i) = \frac{P(R_1_i | b) P(R_2_i | b') P(b)}{\sum_{b} P(R_1_i | b) P(R_2_i | b') P(b)}$$
+$$
+P(b | R_1_i, R_2_i) = \frac{P(R_1_i | b) P(R_2_i | b') P(b)}{\sum_{b} P(R_1_i | b) P(R_2_i | b') P(b)}
+$$
 
 其中 $b' = \text{complement}(b)$。发射概率由质量值得出：
 
-$$P(R_j_i = r | b) = \begin{cases}
+$$
+P(R_j_i = r | b) = \begin{cases}
 1 - \varepsilon_{ji}, & r = b \\
 \varepsilon_{ji} / 3, & r \neq b
-\end{cases}$$
+\end{cases}
+$$
 
 假设先验 $P(b)$ 均匀（$= 1/4$），则校正后的碱基为两条 reads 一致支持且置信度之和最大的碱基。当 $R_1_i \neq R_2_i$ 时，这等效于在矛盾读数中选择质量值更高的那个，但同时保留了贝叶斯框架下合并不确定性的能力。
 
@@ -114,7 +131,9 @@ Bowtie2 的核心数据结构是 **FM-index (Ferragina-Manzini index)**，它基
 
 **Burrows-Wheeler Transform** 定义：对字符串 $S$（以终止符 \$ 结尾），构造其所有循环旋转构成的矩阵 $M$，按字典序排列行，取最后一列作为 BWT($S$)。形式化：
 
-$$\text{BWT}(S) = M[i, n-1] \text{ for } i \text{ such that } M[i,:] \text{ is the } i\text{-th lexicographically sorted rotation}$$
+$$
+\text{BWT}(S) = M[i, n-1] \text{ for } i \text{ such that } M[i,:] \text{ is the } i\text{-th lexicographically sorted rotation}
+$$
 
 **FM-index 的核心操作**：对任意查询子串 $Q$，通过 `rank` 和 `count` 操作在 $O(|Q|)$ 时间内找出其在参考基因组上所有出现位置的后缀数组区间 $[sp, ep]$。
 
@@ -122,7 +141,9 @@ $$\text{BWT}(S) = M[i, n-1] \text{ for } i \text{ such that } M[i,:] \text{ is t
 
 **LF-mapping (Last-First mapping)**：是 BWT 逆向恢复和精确匹配的关键：
 
-$$\text{LF}(i) = C[\text{BWT}[i]] + \text{rank}_{\text{BWT}[i]}(i)$$
+$$
+\text{LF}(i) = C[\text{BWT}[i]] + \text{rank}_{\text{BWT}[i]}(i)
+$$
 
 其中 $C[c]$ 是字典序小于 $c$ 的字符总数。LF-mapping 建立了 BWT 中位置 $i$ 与原始字符串对应位置之间的关系。
 
@@ -132,7 +153,9 @@ Bowtie2 使用 **X-drop 动态规划**在 FM-index 定位的候选区域内进�
 
 对于 $m$ 次独立匹配尝试，最优比对的统计显著性通过 E-value 表示：
 
-$$E = K \cdot m \cdot n \cdot e^{-\lambda S}$$
+$$
+E = K \cdot m \cdot n \cdot e^{-\lambda S}
+$$
 
 其中 $S$ 是原始比对得分，$K$ 和 $\lambda$ 是 Karlin-Altschul 统计参数，$n$ 是查询序列长度。E-value 代表在随机序列模型中期望出现得分 $\geq S$ 的比对数目。
 
@@ -148,9 +171,12 @@ MEGAHIT 的核心创新是用**布尔压缩数组**替代传统的哈希表存�
 
 **定义 1（k-mer 分解）**：序列 $S$ 的 k-mer 集合为：
 
-$$\mathcal{K}_k(S) = \{S[i:i+k] \mid i \in [0, n-k]\}$$
+$$
+\mathcal{K}_k(S) = \{S[i:i+k] \mid i \in [0, n-k]\}
+$$
 
 **定义 2（de Bruijn 图）**：有向图 $G_k(V, E)$，其中：
+
 - 顶点集 $V = \mathcal{K}_{k-1}(S)$，每个顶点是一个长度为 $k-1$ 的子串
 - 边集 $E = \mathcal{K}_k(S)$，每条边连接 $u = S[i:i+k-1]$ 到 $v = S[i+1:i+k]$
 
@@ -161,6 +187,7 @@ $$\mathcal{K}_k(S) = \{S[i:i+k] \mid i \in [0, n-k]\}$$
 #### 4.2.1 传统方法的瓶颈
 
 传统 de Bruijn 图使用哈希表存储所有节点（k-mer）。每个 k-mer 需要存储：
+
 - 碱基序列本身：$k \times \log_2|\Sigma| = 2k$ bits（$\Sigma=4$ 时）
 - 邻接信息：每个节点至少 4 个出边的布尔标记
 - 哈希表负载因子导致的内存膨胀
@@ -192,7 +219,9 @@ MEGAHIT 的思路是将 k-mer 的存在性映射为**一个巨大的一维布尔
 
 MEGAHIT 采用从小到大的 k-mer 渐进拼接策略：
 
-$$k \in \{21, 29, 39, 59, 79, 99, 119, 141\}$$
+$$
+k \in \{21, 29, 39, 59, 79, 99, 119, 141\}
+$$
 
 #### 算法流程
 
@@ -216,7 +245,9 @@ for k in k_list:
 
 对于一对平行路径 $P_1$ 和 $P_2$，若满足：
 
-$$\frac{\min(\text{depth}(P_1), \text{depth}(P_2))}{\max(\text{depth}(P_1), \text{depth}(P_2))} \geq \theta \quad \text{(默认 } \theta = 0.3\text{)}$$
+$$
+\frac{\min(\text{depth}(P_1), \text{depth}(P_2))}{\max(\text{depth}(P_1), \text{depth}(P_2))} \geq \theta \quad \text{(默认 } \theta = 0.3\text{)}
+$$
 
 且长度差 $\big||P_1| - |P_2|\big|$ 小于阈值，则识别为测序错误或低频率变体引起的气泡，将低深度路径合并到高深度路径。
 
@@ -224,7 +255,9 @@ $$\frac{\min(\text{depth}(P_1), \text{depth}(P_2))}{\max(\text{depth}(P_1), \tex
 
 定义悬挂分支（tip）为：从节点 $u$ 出发单向延伸但无法双向连接的长度为 $t$ 的路径。修剪条件：
 
-$$t < \min(2k, \text{mean\_kmer\_depth} \times 0.01)$$
+$$
+t < \min(2k, \text{mean\_kmer\_depth} \times 0.01)
+$$
 
 ### 4.4 组装结果的质量评估
 
@@ -232,13 +265,17 @@ $$t < \min(2k, \text{mean\_kmer\_depth} \times 0.01)$$
 
 **N50**：将所有 contig 按长度降序排列为 $l_1 \geq l_2 \geq \cdots \geq l_n$，则：
 
-$$N50 = \max\{ l_j \mid \sum_{i=1}^{j} l_i \geq 0.5 \times \sum_{i=1}^{n} l_i \}$$
+$$
+N50 = \max\{ l_j \mid \sum_{i=1}^{j} l_i \geq 0.5 \times \sum_{i=1}^{n} l_i \}
+$$
 
 即在排序后的 contig 列表中，覆盖总长度 50% 时的最小 contig 长度。
 
 **L50**：达到 N50 所需的 contig 数量。
 
-$$L50 = \min\{ j \mid \sum_{i=1}^{j} l_i \geq 0.5 \times \sum_{i=1}^{n} l_i \}$$
+$$
+L50 = \min\{ j \mid \sum_{i=1}^{j} l_i \geq 0.5 \times \sum_{i=1}^{n} l_i \}
+$$
 
 **NA50** 和 **NGA50**：将 contig 与参考基因组比对后，只计算比对正确的区块，排除错装 (misassembly) 部分后重新计算 N50。
 
@@ -324,10 +361,10 @@ process MEGAHIT {
 
 ### QC 统计示例
 
-| Sample | Raw reads | Clean reads | Valid reads | Effective Ratio(%) | Host genome rate(%) |
-|--------|-----------|-------------|-------------|-------------------|-------------------|
-| sham_1 | 45,238,762 | 44,021,348 | 40,152,732 | 97.31 | 8.68 |
-| CLP_1  | 48,236,741 | 46,893,214 | 32,154,236 | 97.21 | 31.43 |
+| Sample | Raw reads  | Clean reads | Valid reads | Effective Ratio(%) | Host genome rate(%) |
+| ------ | ---------- | ----------- | ----------- | ------------------ | ------------------- |
+| sham_1 | 45,238,762 | 44,021,348  | 40,152,732  | 97.31              | 8.68                |
+| CLP_1  | 48,236,741 | 46,893,214  | 32,154,236  | 97.21              | 31.43               |
 
 - **Effective Ratio** = Clean reads / Raw reads，反映原始数据中有效信息占比，> 95% 为正常。
 - **Valid reads** = Clean reads × (1 - Host rate)，真正用于后续分析的非宿主 reads。
@@ -335,23 +372,23 @@ process MEGAHIT {
 
 ### 拼接统计示例
 
-| 指标 | 样本 A(高质量) | 样本 B(低质量) | 算法含义 |
-|------|--------------|--------------|---------|
-| N50  | 5,234 bp | 1,021 bp | 覆盖 50% 总长的最小 contig 长度 |
-| Total length | 523 Mbp | 412 Mbp | 拼接总大小 |
-| #contigs | 98,452 | 452,136 | 越少越好 |
-| Largest contig | 236,452 bp | 45,236 bp | 最大连通分量 |
-| GC% | 47.8% | 47.2% | 正常范围 30-70% |
+| 指标           | 样本 A(高质量) | 样本 B(低质量) | 算法含义                        |
+| -------------- | -------------- | -------------- | ------------------------------- |
+| N50            | 5,234 bp       | 1,021 bp       | 覆盖 50% 总长的最小 contig 长度 |
+| Total length   | 523 Mbp        | 412 Mbp        | 拼接总大小                      |
+| #contigs       | 98,452         | 452,136        | 越少越好                        |
+| Largest contig | 236,452 bp     | 45,236 bp      | 最大连通分量                    |
+| GC%            | 47.8%          | 47.2%          | 正常范围 30-70%                 |
 
 ## 6. 关键参数速查
 
-| 参数 | 默认值 | 数学含义 |
-|------|--------|---------|
-| `--fastp_qualified_quality` | 15 | $P_{\text{error}} \leq 10^{-1.5} \approx 0.032$ |
-| `--fastp_cut_mean_quality` | 20 | 窗口内平均 $Q \geq 20$ |
-| `--reads_minlength` | 15 | 过滤后 reads 长度下限 |
-| `--min-contig-len` | 500 | 最短输出 contig（MEGAHIT 参数） |
-| `--host_genome` | null | 宿主基因组选择 (human/mouse/...) |
+| 参数                          | 默认值 | 数学含义                                          |
+| ----------------------------- | ------ | ------------------------------------------------- |
+| `--fastp_qualified_quality` | 15     | $P_{\text{error}} \leq 10^{-1.5} \approx 0.032$ |
+| `--fastp_cut_mean_quality`  | 20     | 窗口内平均$Q \geq 20$                           |
+| `--reads_minlength`         | 15     | 过滤后 reads 长度下限                             |
+| `--min-contig-len`          | 500    | 最短输出 contig（MEGAHIT 参数）                   |
+| `--host_genome`             | null   | 宿主基因组选择 (human/mouse/...)                  |
 
 ## 7. 实际结果示例
 
@@ -359,4 +396,4 @@ process MEGAHIT {
 
 ![示例 Unigene 差异分析 - Kruskal-Wallis 检验箱线图](https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/boxplot_sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP-Unigene_id-Kruskal-Wallis_test.png)
 
-> **图注**：横轴为分组（sham、CLP、NOD2<sup>-/-</sup> sham、NOD2<sup>-/-</sup> CLP），纵轴为该 Unigene 的标准化丰度（log<sub>10</sub>(TPM+1)）。箱体表示四分位距 (IQR)，中位线为中位数，须线延伸至 1.5×IQR 范围内的最远点，散点为各样本观测值，标题中的 *p* 值由 Kruskal-Wallis 检验给出。该 Unigene 在 CLP 组中显著上调，NOD2 敲除部分逆转了这种上调，提示其可能受 NOD2 通路调控并参与脓毒症病理过程。完整的差异分析方法与多组比较策略见本系列第六篇《差异分析与标志物发现》。
+> **图注**：横轴为分组（sham、CLP、NOD2`<sup>`-/-`</sup>` sham、NOD2`<sup>`-/-`</sup>` CLP），纵轴为该 Unigene 的标准化丰度（log`<sub>`10`</sub>`(TPM+1)）。箱体表示四分位距 (IQR)，中位线为中位数，须线延伸至 1.5×IQR 范围内的最远点，散点为各样本观测值，标题中的 *p* 值由 Kruskal-Wallis 检验给出。该 Unigene 在 CLP 组中显著上调，NOD2 敲除部分逆转了这种上调，提示其可能受 NOD2 通路调控并参与脓毒症病理过程。完整的差异分析方法与多组比较策略见本系列第六篇《差异分析与标志物发现》。

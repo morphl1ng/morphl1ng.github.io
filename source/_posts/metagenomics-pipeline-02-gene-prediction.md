@@ -5,15 +5,17 @@ categories: [宏基因组]
 tags: [宏基因组, MetaGeneMark, MMseqs2, Linclust, 丰度归一化]
 ---
 
+
 > **系列导航**：
-> [（一）数据预处理与组装](metagenomics-pipeline-01-data-preprocessing.html) ·
-> [（二）基因预测与定量](metagenomics-pipeline-02-gene-prediction.html) ·
-> [（三）物种分类与可视化](metagenomics-pipeline-03-taxonomy.html) ·
-> [（四）15+ 功能数据库注释](metagenomics-pipeline-04-functional-annotation.html) ·
-> [（五）Alpha/Beta 多样性](metagenomics-pipeline-05-alpha-beta-diversity.html) ·
-> [（六）差异分析与标志物发现](metagenomics-pipeline-06-differential-analysis.html) ·
-> [（七）功能差异与报告](metagenomics-pipeline-07-functional-diff-report.html) ·
-> [（八）附录与速查](metagenomics-pipeline-08-appendix.html)
+> [（一）数据预处理与组装](/2026/07/30/metagenomics-pipeline-01-data-preprocessing/) ·
+> [（二）基因预测与定量](/2026/07/30/metagenomics-pipeline-02-gene-prediction/) ·
+> [（三）物种分类与可视化](/2026/07/30/metagenomics-pipeline-03-taxonomy/) ·
+> [（四）15+ 功能数据库注释](/2026/07/30/metagenomics-pipeline-04-functional-annotation/) ·
+> [（五）Alpha/Beta 多样性](/2026/07/30/metagenomics-pipeline-05-alpha-beta-diversity/) ·
+> [（六）差异分析与标志物发现](/2026/07/30/metagenomics-pipeline-06-differential-analysis/) ·
+> [（七）功能差异与报告](/2026/07/30/metagenomics-pipeline-07-functional-diff-report/) ·
+> [（八）附录与速查](/2026/07/30/metagenomics-pipeline-08-appendix/)
+
 
 **摘要**：本文深入剖析宏基因组分析中基因预测与定量的核心算法——从 MetaGeneMark 的隐马尔可夫模型 (HMM) 基因预测，到 MMseqs2 Linclust 的线性时间聚类算法，再到 TPM 丰度的数学归一化。每个算法均给出完整的数学定义、复杂度证明和生产级代码注解。
 

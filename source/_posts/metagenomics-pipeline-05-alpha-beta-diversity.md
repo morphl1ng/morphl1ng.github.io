@@ -14,15 +14,17 @@ categories:
 mathjax: true
 ---
 
+
 > **系列导航**：
-> [（一）数据预处理与组装](metagenomics-pipeline-01-data-preprocessing.html) ·
-> [（二）基因预测与定量](metagenomics-pipeline-02-gene-prediction.html) ·
-> [（三）物种分类与可视化](metagenomics-pipeline-03-taxonomy.html) ·
-> [（四）15+ 功能数据库注释](metagenomics-pipeline-04-functional-annotation.html) ·
-> [（五）Alpha/Beta 多样性](metagenomics-pipeline-05-alpha-beta-diversity.html) ·
-> [（六）差异分析与标志物发现](metagenomics-pipeline-06-differential-analysis.html) ·
-> [（七）功能差异与报告](metagenomics-pipeline-07-functional-diff-report.html) ·
-> [（八）附录与速查](metagenomics-pipeline-08-appendix.html)
+> [（一）数据预处理与组装](/2026/07/30/metagenomics-pipeline-01-data-preprocessing/) ·
+> [（二）基因预测与定量](/2026/07/30/metagenomics-pipeline-02-gene-prediction/) ·
+> [（三）物种分类与可视化](/2026/07/30/metagenomics-pipeline-03-taxonomy/) ·
+> [（四）15+ 功能数据库注释](/2026/07/30/metagenomics-pipeline-04-functional-annotation/) ·
+> [（五）Alpha/Beta 多样性](/2026/07/30/metagenomics-pipeline-05-alpha-beta-diversity/) ·
+> [（六）差异分析与标志物发现](/2026/07/30/metagenomics-pipeline-06-differential-analysis/) ·
+> [（七）功能差异与报告](/2026/07/30/metagenomics-pipeline-07-functional-diff-report/) ·
+> [（八）附录与速查](/2026/07/30/metagenomics-pipeline-08-appendix/)
+
 
 多样性分析回答生态学的核心问题：**这个群落的物种有多丰富？不同样本之间的群落结构差异有多大？** 本章从信息论和线性代数的底层开始，到 PCA、PCoA、NMDS 的实际实现结束。
 
