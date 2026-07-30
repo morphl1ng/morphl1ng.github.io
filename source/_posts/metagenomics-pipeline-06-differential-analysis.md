@@ -40,8 +40,8 @@ mathjax: true
 Mann-Whitney U (Wilcoxon 秩和检验的等价形式) 检验两个独立样本是否来自同一分布。
 
 **算法**：
-1. 合并两组样本 `X_1, ..., X_m` (group A) 和 `Y_1, ..., Y_n` (group B)
-2. 对所有 `m+n` 个值排序，赋予秩别 `R_1, ..., R_{m+n}`
+1. 合并两组样本 $X_1, ..., X_m$ (group A) 和 $Y_1, ..., Y_n$ (group B)
+2. 对所有 `m+n` 个值排序，赋予秩别 $R_1, ..., R_{m+n}$
 3. 计算 U 统计量：
    $$U_1 = \sum_{i=1}^m R_i - \frac{m(m+1)}{2}$$
    $$U_2 = mn - U_1$$

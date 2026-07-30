@@ -40,7 +40,7 @@ mathjax: true
 
 $${}^q D = \left( \sum_{i=1}^{S} p_i^q \right)^{1/(1-q)}$$
 
-其中 `S` 是物种数，`p_i` 是第 i 个物种的相对丰度，`q` 是**阶数**，控制对稀有物种的敏感度。
+其中 `S` 是物种数，$p_i$ 是第 i 个物种的相对丰度，`q` 是**阶数**，控制对稀有物种的敏感度。
 
 #### q=0: 物种丰富度
 
@@ -52,11 +52,11 @@ $${}^0 D = \sum_{i=1}^{S} p_i^0 = S$$
 
 当 `q→1` 时，Hill 数呈 `0/0` 不定式。使用洛必达法则：
 
-令 `f(q) = \ln\left(\sum p_i^q\right)`，`g(q) = 1-q`，则 `\ln({}^q D) = f(q)/g(q)`。
+令 $f(q) = \ln\left(\sum p_i^q\right)$，`g(q) = 1-q`，则 `\ln({}^q D) = f(q)/g(q)`。
 
 $$\lim_{q\to 1} \ln({}^q D) = \lim_{q\to 1} \frac{\frac{d}{dq}\ln(\sum p_i^q)}{\frac{d}{dq}(1-q)} = \lim_{q\to 1} \frac{(\sum p_i^q \ln p_i) / (\sum p_i^q)}{-1}$$
 
-代入 `q=1`：`\sum p_i^1 = 1`，得到：
+代入 $q=1$：$\sum p_i^1 = 1$，得到：
 
 $$\ln({}^1 D) = -\sum_{i=1}^{S} p_i \ln p_i \quad\Rightarrow\quad {}^1 D = \exp\left(-\sum p_i \ln p_i\right) = e^H$$
 
@@ -66,7 +66,7 @@ $$\ln({}^1 D) = -\sum_{i=1}^{S} p_i \ln p_i \quad\Rightarrow\quad {}^1 D = \exp\
 
 $${}^2 D = \left( \sum_{i=1}^{S} p_i^2 \right)^{1/(1-2)} = \frac{1}{\sum p_i^2}$$
 
-这是 **Simpson 指数**的倒数形式。原始 Simpson 指数 `\lambda = \sum p_i^2` 表示"随机取两个个体属于同一物种的概率"，所以 `1/\lambda` 是"有效物种数"。
+这是 **Simpson 指数**的倒数形式。原始 Simpson 指数 $\lambda = \sum p_i^2$ 表示"随机取两个个体属于同一物种的概率"，所以 `1/\lambda` 是"有效物种数"。
 
 **直观对比**：
 
@@ -83,18 +83,18 @@ $${}^2 D = \left( \sum_{i=1}^{S} p_i^2 \right)^{1/(1-2)} = \frac{1}{\sum p_i^2}$
 $$S_{est} = S_{obs} + \frac{F_1^2}{2 \times F_2}$$
 
 其中：
-- `S_obs`：观测到的物种数
-- `F_1`：**singletons** — 只在 1 个样本中出现一次的物种数
-- `F_2`：**doubletons** — 只在 1 个样本中出现两次的物种数
+- $S_obs$：观测到的物种数
+- $F_1$：**singletons** — 只在 1 个样本中出现一次的物种数
+- $F_2$：**doubletons** — 只在 1 个样本中出现两次的物种数
 
-**推导直觉**：如果有很多 singletons 但很少 doubletons（`F_1 >> F_2`），说明还有很多物种未被采样到；如果 `F_1` 和 `F_2` 都很少，说明采样已接近饱和。
+**推导直觉**：如果有很多 singletons 但很少 doubletons（$F_1 >> F_2$），说明还有很多物种未被采样到；如果 $F_1$ 和 $F_2$ 都很少，说明采样已接近饱和。
 
-Chao1 基于 **Good-Turing 频率估计**的修正：对观测到的低频率物种的"真实"频率进行纠偏。令 `\hat{p}_i` 为物种 i 的真实相对丰度的估计值：
+Chao1 基于 **Good-Turing 频率估计**的修正：对观测到的低频率物种的"真实"频率进行纠偏。令 $\hat{p}_i$ 为物种 i 的真实相对丰度的估计值：
 
 - 对 singletons：`\hat{p} = (1 - \hat{p}_0) / n`，其中 `\hat{p}_0 = F_1/n` 是零频率的估计概率
 - 对 doubletons：`\hat{p} = 2F_2 / (n(n-1))`
 
-代入 Good-Turing 公式求解 `S_est` 即得到 Chao1 公式。
+代入 Good-Turing 公式求解 $S_est$ 即得到 Chao1 公式。
 
 **管道中的 α 多样性计算**（通过 QIIME2）：
 

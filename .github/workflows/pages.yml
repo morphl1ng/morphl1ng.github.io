@@ -27,6 +27,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Install pandoc
+        run: sudo apt-get update && sudo apt-get install -y pandoc
+
       - run: npx hexo generate
         env:
           TZ: Asia/Shanghai

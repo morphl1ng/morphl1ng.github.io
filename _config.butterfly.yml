@@ -95,3 +95,11 @@ inject:
     - <style>#body-wrap{position:relative;z-index:1}</style>
   bottom:
     - <script defer src="/js/snow.js"></script>
+
+# MathJax
+math:
+  use: mathjax
+  per_page: true
+  mathjax:
+    enableMenu: true
+    tags: ams

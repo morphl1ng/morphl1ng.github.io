@@ -4,7 +4,6 @@ date: 2026-07-30
 categories: [宏基因组]
 tags: [宏基因组, de Bruijn图, MEGAHIT, fastp, 序列拼接]
 ---
->
 > **系列导航**：
 > [（一）数据预处理与组装](/2026/07/30/metagenomics-pipeline-01-data-preprocessing/) ·
 > [（二）基因预测与定量](/2026/07/30/metagenomics-pipeline-02-gene-prediction/) ·
@@ -14,7 +13,6 @@ tags: [宏基因组, de Bruijn图, MEGAHIT, fastp, 序列拼接]
 > [（六）差异分析与标志物发现](/2026/07/30/metagenomics-pipeline-06-differential-analysis/) ·
 > [（七）功能差异与报告](/2026/07/30/metagenomics-pipeline-07-functional-diff-report/) ·
 > [（八）附录与速查](/2026/07/30/metagenomics-pipeline-08-appendix/)
-
 
 **摘要**：本文从算法层面系统性解析宏基因组分析的前半程——从 Illumina 原始下机数据到高质量拼接 contigs。涵盖测序噪声模型、fastp 的贝叶斯碱基校正、Bowtie2 的 FM-index 比对原理、MEGAHIT 的 succinct de Bruijn Graph (SdBG) 压缩算法及多 k-mer 迭代策略，以及 QUAST 评估指标的精确定义。所有算法推导均辅以生产级代码注解。
 
@@ -100,28 +98,28 @@ $$
 
 ### 2.3 双端碱基互校正的贝叶斯原理
 
-fastp 的 paired-end 互校正是最被低估的特性之一。对于 overlap 区域中的碱基对 $(R_1_i, R_2_i)$，我们要求后验概率最大的真实碱基：
+fastp 的 paired-end 互校正是最被低估的特性之一。对于 overlap 区域中的碱基对 $(R_{1i}, R_{2i})$，我们要求后验概率最大的真实碱基：
 
 $$
-\hat{b} = \arg\max_{b \in \{A,T,C,G\}} P(b | R_1_i, R_2_i, Q_1_i, Q_2_i)
+\hat{b} = \arg\max_{b \in \{A,T,C,G\}} P(b | R_{1i}, R_{2i}, Q_{1i}, Q_{2i})
 $$
 
 由贝叶斯定理：
 
 $$
-P(b | R_1_i, R_2_i) = \frac{P(R_1_i | b) P(R_2_i | b') P(b)}{\sum_{b} P(R_1_i | b) P(R_2_i | b') P(b)}
+P(b | R_{1i}, R_{2i}) = \frac{P(R_{1i} | b) P(R_{2i} | b') P(b)}{\sum_{b} P(R_{1i} | b) P(R_{2i} | b') P(b)}
 $$
 
 其中 $b' = \text{complement}(b)$。发射概率由质量值得出：
 
 $$
-P(R_j_i = r | b) = \begin{cases}
+P(R_{ji} = r | b) = \begin{cases}
 1 - \varepsilon_{ji}, & r = b \\
 \varepsilon_{ji} / 3, & r \neq b
 \end{cases}
 $$
 
-假设先验 $P(b)$ 均匀（$= 1/4$），则校正后的碱基为两条 reads 一致支持且置信度之和最大的碱基。当 $R_1_i \neq R_2_i$ 时，这等效于在矛盾读数中选择质量值更高的那个，但同时保留了贝叶斯框架下合并不确定性的能力。
+假设先验 $P(b)$ 均匀（$= 1/4$），则校正后的碱基为两条 reads 一致支持且置信度之和最大的碱基。当 $R_{1i} \neq R_{2i}$ 时，这等效于在矛盾读数中选择质量值更高的那个，但同时保留了贝叶斯框架下合并不确定性的能力。
 
 ## 3. PhiX 和宿主去除的比对统计学
 
@@ -396,4 +394,4 @@ process MEGAHIT {
 
 ![示例 Unigene 差异分析 - Kruskal-Wallis 检验箱线图](https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/boxplot_sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP-Unigene_id-Kruskal-Wallis_test.png)
 
-> **图注**：横轴为分组（sham、CLP、NOD2`<sup>`-/-`</sup>` sham、NOD2`<sup>`-/-`</sup>` CLP），纵轴为该 Unigene 的标准化丰度（log`<sub>`10`</sub>`(TPM+1)）。箱体表示四分位距 (IQR)，中位线为中位数，须线延伸至 1.5×IQR 范围内的最远点，散点为各样本观测值，标题中的 *p* 值由 Kruskal-Wallis 检验给出。该 Unigene 在 CLP 组中显著上调，NOD2 敲除部分逆转了这种上调，提示其可能受 NOD2 通路调控并参与脓毒症病理过程。完整的差异分析方法与多组比较策略见本系列第六篇《差异分析与标志物发现》。
+> **图注**：横轴为分组（sham、CLP、NOD2 `<sup>`-/-`</sup>` sham、NOD2 `<sup>`-/-`</sup>` CLP），纵轴为该 Unigene 的标准化丰度（log `<sub>`10 `</sub>`(TPM+1)）。箱体表示四分位距 (IQR)，中位线为中位数，须线延伸至 1.5×IQR 范围内的最远点，散点为各样本观测值，标题中的 *p* 值由 Kruskal-Wallis 检验给出。该 Unigene 在 CLP 组中显著上调，NOD2 敲除部分逆转了这种上调，提示其可能受 NOD2 通路调控并参与脓毒症病理过程。完整的差异分析方法与多组比较策略见本系列第六篇《差异分析与标志物发现》。

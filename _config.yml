@@ -1,4 +1,4 @@
-# Hexo Configuration
+﻿# Hexo Configuration
 ## Docs: https://hexo.io/docs/configuration.html
 ## Source: https://github.com/hexojs/hexo/
 
@@ -103,6 +103,11 @@ search:
   path: search.xml
   field: post
   content: true
+
+# Pandoc settings (with math support)
+pandoc:
+  args:
+    - --mathjax
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
