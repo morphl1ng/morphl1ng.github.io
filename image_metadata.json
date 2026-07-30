@@ -1,0 +1,205 @@
+﻿[
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\1.DATA_PREPROCESS\\1.3_Unigene\\boxplot_sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP-Unigene_id-Kruskal-Wallis_test.png",
+        "type":  "img",
+        "desc":  "Unigene 差异检验 - Kruskal-Wallis 箱线图",
+        "post":  1,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/boxplot_sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP-Unigene_id-Kruskal-Wallis_test.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\2.Taxonomy_analysis\\2.3_Barplot\\Barplot_Group\\barplot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP-1-Kingdom-Group.png",
+        "type":  "img",
+        "desc":  "堆叠柱状图 - 门水平 (分组平均)",
+        "post":  3,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/barplot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP-1-Kingdom-Group.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\2.Taxonomy_analysis\\2.3_Barplot\\Barplot_Group\\barplot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP-2-Phylum-Group.png",
+        "type":  "img",
+        "desc":  "堆叠柱状图 - 门水平 (分组平均)",
+        "post":  3,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/barplot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP-2-Phylum-Group.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\2.Taxonomy_analysis\\2.3_Barplot\\Barplot_Group\\barplot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP-5-Family-Group.png",
+        "type":  "img",
+        "desc":  "堆叠柱状图 - 科水平 (分组平均)",
+        "post":  3,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/barplot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP-5-Family-Group.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\2.Taxonomy_analysis\\2.3_Barplot\\Barplot_Group\\barplot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP-6-Genus-Group.png",
+        "type":  "img",
+        "desc":  "堆叠柱状图 - 属水平 (分组平均)",
+        "post":  3,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/barplot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP-6-Genus-Group.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\2.Taxonomy_analysis\\2.5_Bubble_plot\\bubble_plot-Genus-sham_vs_CLP.png",
+        "type":  "img",
+        "desc":  "气泡图 - 属水平 (sham vs CLP)",
+        "post":  3,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/bubble_plot-Genus-sham_vs_CLP.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\2.Taxonomy_analysis\\2.6_Clustermap\\Genus_clustermap-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png",
+        "type":  "img",
+        "desc":  "聚类热图 - 属水平",
+        "post":  3,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/Genus_clustermap-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\6.Functional_profiling\\6.1_GO\\pie_plot_GO_Function-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png",
+        "type":  "img",
+        "desc":  "GO 饼图 - 三大类功能",
+        "post":  4,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/pie_plot_GO_Function-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\6.Functional_profiling\\6.1_GO\\bubble_plot_GO_Term-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png",
+        "type":  "img",
+        "desc":  "GO 气泡图 - Top 30 terms",
+        "post":  4,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/bubble_plot_GO_Term-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\6.Functional_profiling\\6.2_KEGG\\pie_plot_PathwayL1-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png",
+        "type":  "img",
+        "desc":  "KEGG 饼图 - 通路 L1",
+        "post":  4,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/pie_plot_PathwayL1-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\6.Functional_profiling\\6.2_KEGG\\bubble_plot_PathwayL2-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png",
+        "type":  "img",
+        "desc":  "KEGG 气泡图 - 通路 L2",
+        "post":  4,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/bubble_plot_PathwayL2-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\6.Functional_profiling\\6.3_eggNOG\\bubble_plot_COG_Description-sham_vs_CLP.png",
+        "type":  "img",
+        "desc":  "eggNOG 气泡图 - COG 分类",
+        "post":  4,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/bubble_plot_COG_Description-sham_vs_CLP.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\6.Functional_profiling\\6.4_CAZy\\bubble_plot_Family-sham_vs_CLP.png",
+        "type":  "img",
+        "desc":  "CAZy 气泡图 - 糖苷酶家族",
+        "post":  4,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/bubble_plot_Family-sham_vs_CLP.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\6.Functional_profiling\\6.8_CARD\\bubble_plot_AMR_Gene_Family-CLP_vs_NOD2_CLP.png",
+        "type":  "img",
+        "desc":  "CARD 气泡图 - 抗性基因家族",
+        "post":  4,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/bubble_plot_AMR_Gene_Family-CLP_vs_NOD2_CLP.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\4.Beta_diversity\\4.2_PCA\\PCA_plot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png",
+        "type":  "img",
+        "desc":  "PCA 排序图",
+        "post":  5,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/PCA_plot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\4.Beta_diversity\\4.3_PCoA\\Bray-Curtis-PCoA_plot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png",
+        "type":  "img",
+        "desc":  "PCoA 排序图 (Bray-Curtis)",
+        "post":  5,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/Bray-Curtis-PCoA_plot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\4.Beta_diversity\\4.4_NMDS\\Bray-Curtis-NMDS_plot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png",
+        "type":  "img",
+        "desc":  "NMDS 排序图 (Bray-Curtis)",
+        "post":  5,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/Bray-Curtis-NMDS_plot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\4.Beta_diversity\\4.5_UPGMA\\Bray-Curtis_UPGMA_plot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png",
+        "type":  "img",
+        "desc":  "UPGMA 层次聚类",
+        "post":  5,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/Bray-Curtis_UPGMA_plot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\3.Alpha_diversity\\3.2_rarefaction_curves\\chao1_rarefaction_curves-sham_vs_CLP.png",
+        "type":  "img",
+        "desc":  "稀释曲线 - Chao1",
+        "post":  5,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/chao1_rarefaction_curves-sham_vs_CLP.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\3.Alpha_diversity\\3.3_violin\\chao1-sham_vs_CLP-violin.png",
+        "type":  "img",
+        "desc":  "Alpha多样性小提琴图 - Chao1",
+        "post":  5,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/chao1-sham_vs_CLP-violin.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\5.Difference_analysis\\5.2_Nonparametric_test\\Genus\\CLP_vs_NOD2_CLP-boxplot-Mann-Whitney_U_test.png",
+        "type":  "img",
+        "desc":  "Mann-Whitney U 箱线图 (Genus)",
+        "post":  6,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/CLP_vs_NOD2_CLP-boxplot-Mann-Whitney_U_test.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\5.Difference_analysis\\5.4_LEfSe\\sham_vs_CLP\\lefse_LDA_Class.png",
+        "type":  "img",
+        "desc":  "LEfSe LDA 柱状图 (Class)",
+        "post":  6,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/lefse_LDA_Class.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\5.Difference_analysis\\5.4_LEfSe\\sham_vs_CLP\\lefse_cladogram.png",
+        "type":  "img",
+        "desc":  "LEfSe 进化分支图",
+        "post":  6,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/lefse_cladogram.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\5.Difference_analysis\\5.5_Indicator\\Class-sham_vs_CLP.png",
+        "type":  "img",
+        "desc":  "指示物种分析 (Class)",
+        "post":  6,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/Class-sham_vs_CLP.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\5.Difference_analysis\\5.1_Venn_plot\\Upset-1-Kindom-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png",
+        "type":  "img",
+        "desc":  "Venn/UpSet 图 - 共享/独占物种",
+        "post":  6,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/Upset-1-Kindom-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\8.Functional_Tax_merge\\8.2_KEGG\\Procrustes_Species_KEGG-CLP_vs_NOD2_CLP.png",
+        "type":  "img",
+        "desc":  "Procrustes 分析 - 物种 vs 功能",
+        "post":  7,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/Procrustes_Species_KEGG-CLP_vs_NOD2_CLP.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\5.Difference_analysis\\5.6_Random_forest\\Class-sham_vs_CLP\\importance_top50_heatmap.png",
+        "type":  "img",
+        "desc":  "随机森林 Top-50 特征重要性热图",
+        "post":  7,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/importance_top50_heatmap.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\2.Taxonomy_analysis\\2.3_Barplot\\Barplot_Group\\barplot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP-2-Phylum-Group.png",
+        "type":  "img",
+        "desc":  "附录示例 - 物种组成",
+        "post":  8,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/barplot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP-2-Phylum-Group.png"
+    },
+    {
+        "path":  "D:\\project\\metagenomics-project-file\\result\\4.Beta_diversity\\4.2_PCA\\PCA_plot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png",
+        "type":  "img",
+        "desc":  "附录示例 - PCA 排序",
+        "post":  8,
+        "url":  "https://morphl1ng-blog.obs.cn-east-3.myhuaweicloud.com/blog/PCA_plot-sham_vs_CLP_vs_NOD2_sham_vs_NOD2_CLP.png"
+    }
+]
